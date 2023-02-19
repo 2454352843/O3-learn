@@ -7,7 +7,7 @@ from tqdm import tqdm
 train_ratio = 0.9
 test_ratio = 1 - train_ratio
 
-rootdata = r"E:\data\5-mouth-dataset"
+rootdata = r"H:\data\5-mouth-dataset"
 tif_list = ['GEOS', 'LandCover', 'SILAM', 'Tropomi']
 
 data_list, train_list, test_list = [], [], []

@@ -1,6 +1,6 @@
 
 img_list = ['PS','T2M','TROPCOL_O3','U2M','V2M','ZPBL','SILAM','Tropomi','DEM','NDVI','POP','pri_sec']
-path = r'D:\work\python\pycharm\O3-learn\Pytorch\O3_estimate\Resource\math1.txt'
+path = r'Resource\math1.txt'
 
 # 返回数据集中使用的mean,std
 def get_math():

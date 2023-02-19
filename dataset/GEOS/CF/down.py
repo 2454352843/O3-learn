@@ -4,7 +4,7 @@
 import datetime
 from datetime import date, timedelta
 import logging
-import wget
+
 from contextlib import closing
 import requests, os
 import time
@@ -21,8 +21,8 @@ from dataset.GEOS.CF.utils.check_file import down_check
 signal.signal(signal.SIGINT, multitasking.killall)
 multitasking.set_max_threads(4)  # 最大线程数为4
 
-basepath = r'D:\work\python\data\GEOS_CF\\'
-basepath_ZPBL = r'E:\data\5. GEOS-CF\weather' + os.path.sep
+basepath = r'H:\work\python\data\GEOS_CF\\'
+basepath_ZPBL = r'H:\data\5. GEOS-CF\weather' + os.path.sep
 bathurl = 'https://portal.nccs.nasa.gov/datashare/gmao/geos-cf/v1/forecast/'
 o3path = 'down_cf_o3.txt'
 weatherpath = 'down_cf_weather.txt'
