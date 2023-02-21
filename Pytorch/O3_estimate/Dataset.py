@@ -65,8 +65,8 @@ class LoadData(Dataset):
     def getImg(self, path, point):
 
         x, y = self.img_size
-        lat = point.lat
-        lon = point.lon
+        lat = float(point.lat)
+        lon = float(point.lon)
 
         ds = gdal.Open(path)
         rows = ds.RasterYSize  # 行数
@@ -83,7 +83,7 @@ class LoadData(Dataset):
         minLonmain = Transform[0]
         # maxLonmain = Transform[0] + cols * Transform[1]
 
-        lat_value = int((maxLatmain - lat) / ratio)
+        lat_value = int((maxLatmain - (lat)) / ratio)
         lon_value = int((lon - minLonmain) / ratio)
 
         # y_min = lat_value - int(y / 2)
@@ -175,15 +175,15 @@ class LoadData(Dataset):
         else:
             data = np.delete(data, -1, axis=0)
 
-        for i in range(w - x):
-            data = np.delete(data, x - i, axis=0)
-
-        for i in range(h - y):
-            data = np.delete(data, y - i, axis=1)
+        # for i in range(w - x):
+        #     data = np.delete(data, x - i, axis=0)
+        #
+        # for i in range(h - y):
+        #     data = np.delete(data, y - i, axis=1)
 
         if (data.min() < -1000000):
             print('数据错误，最小值小于-100000')
-            sys.exit()
+            # sys.exit()
         return data
 
     def __getitem__(self, index):  # 返回真正想返回的东西
@@ -198,8 +198,8 @@ class LoadData(Dataset):
             # print(path)
 
             # img = cv2.imread(path,-1)
-            img = self.getImgBysize(path, item)
-            img = self.data_exasmine(img)
+            img = self.getImg(path, item)
+            img = self.data_examine(img)
             img = self.padding_black(img)
 
             if (self.img_size != img.shape):

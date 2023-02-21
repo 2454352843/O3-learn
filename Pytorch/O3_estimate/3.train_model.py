@@ -63,12 +63,12 @@ def validate(dataloader, model, loss_fn, device):
 
 
 if __name__=='__main__':
-    batch_size = 1
+    batch_size = 8
     # batch_size = 128
 
     # # 给训练集和测试集分别创建一个数据集加载器
-    train_data = LoadData("Resource/t1.txt", True)
-    valid_data = LoadData("Resource/t1.txt", False)
+    train_data = LoadData("Resource/train.txt", True)
+    valid_data = LoadData("Resource/test.txt", False)
 
     #num_workers 线程数 pin_memory 数据存到内存中  shuffle 是否打乱顺序
     # train_dataloader = DataLoader(dataset=train_data, num_workers=4, pin_memory=True, batch_size=batch_size, shuffle=True)
