@@ -7,13 +7,11 @@ import multitasking
 import config.log as log
 import sys
 from osgeo import gdal
-import cv2
 import torch
-from PIL import Image
 import numpy as np
 import torchvision.transforms as transforms
 from tqdm import tqdm
-from utils import *
+from Pytorch.O3_estimate.utils import *
 # 读取文件格式损坏自动跳过
 from PIL import ImageFile
 
@@ -65,136 +63,136 @@ class LoadData(Dataset):
             imgs_info = list(map(lambda x: x.strip().split('\t'), imgs_info))
         return imgs_info  # 返回图片信息
 
-    def getImg(self, path, point):
-
-        x, y = self.img_size
-        lat = float(point.lat)
-        lon = float(point.lon)
-
-        ds = gdal.Open(path)
-        rows = ds.RasterYSize  # 行数
-        cols = ds.RasterXSize  # 列数
-        # bands = ds.RasterCount
-        # Proj = ds.GetProjection()
-        Transform = ds.GetGeoTransform()
-        Bandarr = ds.GetRasterBand(1).ReadAsArray()
-        # print(Bandarr.shape)
-        del ds
-
-        maxLatmain = Transform[3]
-        # minLatmain = Transform[3] + rows * Transform[5]
-        minLonmain = Transform[0]
-        # maxLonmain = Transform[0] + cols * Transform[1]
-
-        lat_value = int((maxLatmain - (lat)) / ratio)
-        lon_value = int((lon - minLonmain) / ratio)
-
-        # y_min = lat_value - int(y / 2)
-        # y_max = y_min + y
-
-        y_left = lat_value - int(y / 2)
-        y_right = y_left + y
-
-        x_left = lon_value - int(x / 2)
-        x_right = x_left + x
-
-        data = Bandarr[y_left:y_right, x_left:x_right]
-
-        getdata = lambda x: Bandarr[lat_value - x: lat_value + x, lon_value - x:lon_value + x]
-        # 如果数据在边缘位置 需要进行数组扩充
-        if (x_left < 0):
-            if (y_left < 0):
-                value = lon_value if lon_value < lat_value else lat_value
-            else:
-                value = lon_value if lon_value < rows - 1 - lat_value else rows - 1 - lat_value
-            data = getdata(value)
-            return data
-
-        if (y_left < 0):
-            value = lat_value if lat_value < cols - 1 - lon_value else cols - 1 - lon_value
-            data = getdata(value)
-            return data
-
-        if (y_right > rows - 1):
-            if (x_right > cols - 1):
-                value = rows - 1 - lat_value if rows - 1 - lat_value < cols - 1 - lon_value else cols - 1 - lon_value
-            else:
-                value = rows - 1 - lat_value if rows - 1 - lat_value < lon_value else lon_value
-            data = getdata(value)
-            return data
-
-        if (x_right > cols - 1):
-            value = cols - 1 - lon_value if cols - 1 - lon_value < lat_value else lat_value
-            data = getdata(value)
-            return data
-        # data = Bandarr[0, :]
-
-        return data
-
-    def padding_black(self, img):  # 如果尺寸太小可以扩充
-        w, h = img.shape
-        x, y = self.img_size
-
-        data = img
-        # data = img.reshape((1, w * h))[0, :]
-        # print(data.shape)
-
-        count = x * y
-        time = int(x / w) if int(x / w) < int(y / h) else int(y / h)
-
-        data = np.repeat(data, time, axis=1)
-        data = np.repeat(data, time, axis=0)
-        # print(data.shape)
-
-        x1 = x - data.shape[0]
-        y1 = y - data.shape[1]
-        list = []
-        for i in data:
-            j = i.tolist()
-            temp = j + [i[-1] for k in range(y1)]
-            list.append(temp)
-
-        for i in range(x1):
-            list.append(list[-1])
-
-        img = np.array(list)
-        # temp = [data[-1] for j in range(count - (w * h * time))]
-        # list += temp
-        #
-        # img = np.array(list).reshape(x,y)
-        return img
-
-    def data_examine(self, img):  # 如果尺寸太小可以扩充
-        w, h = img.shape
-        x, y = self.img_size
-        data = img
-
-        if (data[1, 0] < -10000):
-            data = np.delete(data, 0, axis=1)
-        else:
-            data = np.delete(data, -1, axis=1)
-        if (data[0, 1] < -10000):
-            data = np.delete(data, 0, axis=0)
-        else:
-            data = np.delete(data, -1, axis=0)
-
-        if (data.min() < -1000000):
-            print('数据错误，最小值小于-100000')
-            # sys.exit()
-        return data
-
-    @multitasking
-    def addList(self,item,i):
-
-        path = item.img_path[i]
-        img = self.getImg(path, item)
-        img = self.data_examine(img)
-        img = self.padding_black(img)
-
-        if (self.img_size != img.shape):
-            print('!!!!!!!!!!!---- 图片大小不一致 ---!!!!!!!!!!!!!!')
-            sys.exit()
-        return img
+    # def getImg(self, path, point):
+    #
+    #     x, y = self.img_size
+    #     lat = float(point.lat)
+    #     lon = float(point.lon)
+    #
+    #     ds = gdal.Open(path)
+    #     rows = ds.RasterYSize  # 行数
+    #     cols = ds.RasterXSize  # 列数
+    #     # bands = ds.RasterCount
+    #     # Proj = ds.GetProjection()
+    #     Transform = ds.GetGeoTransform()
+    #     Bandarr = ds.GetRasterBand(1).ReadAsArray()
+    #     # print(Bandarr.shape)
+    #     del ds
+    #
+    #     maxLatmain = Transform[3]
+    #     # minLatmain = Transform[3] + rows * Transform[5]
+    #     minLonmain = Transform[0]
+    #     # maxLonmain = Transform[0] + cols * Transform[1]
+    #
+    #     lat_value = int((maxLatmain - (lat)) / ratio)
+    #     lon_value = int((lon - minLonmain) / ratio)
+    #
+    #     # y_min = lat_value - int(y / 2)
+    #     # y_max = y_min + y
+    #
+    #     y_left = lat_value - int(y / 2)
+    #     y_right = y_left + y
+    #
+    #     x_left = lon_value - int(x / 2)
+    #     x_right = x_left + x
+    #
+    #     data = Bandarr[y_left:y_right, x_left:x_right]
+    #
+    #     getdata = lambda x: Bandarr[lat_value - x: lat_value + x, lon_value - x:lon_value + x]
+    #     # 如果数据在边缘位置 需要进行数组扩充
+    #     if (x_left < 0):
+    #         if (y_left < 0):
+    #             value = lon_value if lon_value < lat_value else lat_value
+    #         else:
+    #             value = lon_value if lon_value < rows - 1 - lat_value else rows - 1 - lat_value
+    #         data = getdata(value)
+    #         return data
+    #
+    #     if (y_left < 0):
+    #         value = lat_value if lat_value < cols - 1 - lon_value else cols - 1 - lon_value
+    #         data = getdata(value)
+    #         return data
+    #
+    #     if (y_right > rows - 1):
+    #         if (x_right > cols - 1):
+    #             value = rows - 1 - lat_value if rows - 1 - lat_value < cols - 1 - lon_value else cols - 1 - lon_value
+    #         else:
+    #             value = rows - 1 - lat_value if rows - 1 - lat_value < lon_value else lon_value
+    #         data = getdata(value)
+    #         return data
+    #
+    #     if (x_right > cols - 1):
+    #         value = cols - 1 - lon_value if cols - 1 - lon_value < lat_value else lat_value
+    #         data = getdata(value)
+    #         return data
+    #     # data = Bandarr[0, :]
+    #
+    #     return data
+    #
+    # def padding_black(self, img):  # 如果尺寸太小可以扩充
+    #     w, h = img.shape
+    #     x, y = self.img_size
+    #
+    #     data = img
+    #     # data = img.reshape((1, w * h))[0, :]
+    #     # print(data.shape)
+    #
+    #     count = x * y
+    #     time = int(x / w) if int(x / w) < int(y / h) else int(y / h)
+    #
+    #     data = np.repeat(data, time, axis=1)
+    #     data = np.repeat(data, time, axis=0)
+    #     # print(data.shape)
+    #
+    #     x1 = x - data.shape[0]
+    #     y1 = y - data.shape[1]
+    #     list = []
+    #     for i in data:
+    #         j = i.tolist()
+    #         temp = j + [i[-1] for k in range(y1)]
+    #         list.append(temp)
+    #
+    #     for i in range(x1):
+    #         list.append(list[-1])
+    #
+    #     img = np.array(list)
+    #     # temp = [data[-1] for j in range(count - (w * h * time))]
+    #     # list += temp
+    #     #
+    #     # img = np.array(list).reshape(x,y)
+    #     return img
+    #
+    # def data_examine(self, img):  # 如果尺寸太小可以扩充
+    #     w, h = img.shape
+    #     x, y = self.img_size
+    #     data = img
+    #
+    #     if (data[1, 0] < -10000):
+    #         data = np.delete(data, 0, axis=1)
+    #     else:
+    #         data = np.delete(data, -1, axis=1)
+    #     if (data[0, 1] < -10000):
+    #         data = np.delete(data, 0, axis=0)
+    #     else:
+    #         data = np.delete(data, -1, axis=0)
+    #
+    #     if (data.min() < -1000000):
+    #         print('数据错误，最小值小于-100000')
+    #         # sys.exit()
+    #     return data
+    #
+    # @multitasking
+    # def addList(self, item, i):
+    #
+    #     path = item.img_path[i]
+    #     img = self.getImg(path, item)
+    #     img = self.data_examine(img)
+    #     img = self.padding_black(img)
+    #
+    #     if (self.img_size != img.shape):
+    #         print('!!!!!!!!!!!---- 图片大小不一致 ---!!!!!!!!!!!!!!')
+    #         sys.exit()
+    #     return img
 
     def __getitem__(self, index):  # 返回真正想返回的东西
         logger.info('getitem index:{n}'.format(n=index))
@@ -205,18 +203,18 @@ class LoadData(Dataset):
         sp = 0
         list = []
 
-        img0 = self.addList(item,0)
-        img1 = self.addList(item,1)
-        img2 = self.addList(item,2)
-        img3 = self.addList(item,3)
-        img4 = self.addList(item,4)
-        img5 = self.addList(item,5)
-        img6 = self.addList(item,6)
-        img7 = self.addList(item,7)
-        img8 = self.addList(item,8)
-        img9 = self.addList(item,9)
-        img10 = self.addList(item,10)
-        img11 = self.addList(item,11)
+        img0 = addList(item, 0)
+        img1 = addList(item, 1)
+        img2 = addList(item, 2)
+        img3 = addList(item, 3)
+        img4 = addList(item, 4)
+        img5 = addList(item, 5)
+        img6 = addList(item, 6)
+        img7 = addList(item, 7)
+        img8 = addList(item, 8)
+        img9 = addList(item, 9)
+        img10 = addList(item, 10)
+        img11 = addList(item, 11)
 
         multitasking.wait_for_tasks()
         list.append(img0)
