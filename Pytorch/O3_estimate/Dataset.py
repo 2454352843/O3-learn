@@ -175,12 +175,6 @@ class LoadData(Dataset):
         else:
             data = np.delete(data, -1, axis=0)
 
-        # for i in range(w - x):
-        #     data = np.delete(data, x - i, axis=0)
-        #
-        # for i in range(h - y):
-        #     data = np.delete(data, y - i, axis=1)
-
         if (data.min() < -1000000):
             print('数据错误，最小值小于-100000')
             # sys.exit()
@@ -215,6 +209,7 @@ class LoadData(Dataset):
             list1.append(data_normal)
 
         data = np.array(list1)
+        data[data==np.nan] = 0
         data = torch.from_numpy(data).float()
         # if self.train_flag:
         #     data = self.train_tf(data.float())
@@ -279,7 +274,8 @@ if __name__ == "__main__":
     #     # print("image = ",image)
     #     print("label = ",label)
 
-    for batch, (image, label) in enumerate(train_loader):  #
-        print("image.shape = ", image.shape)
+    for batch, (image, label) in enumerate(train_loader):
+        print(image.max())
+        print(image.min())
         # print("image = ",image)
         print("label = ", label)
