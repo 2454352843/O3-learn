@@ -28,9 +28,9 @@ def train(dataloader, model, loss_fn, optimizer,device):
         # 得到预测的结果pred
 
         pred = model(X)
-        # if(torch.isnan(pred).any()):
-        #     print("pred is nan ")
-        #     sys.exit()
+        if(torch.isnan(pred).any()):
+            print("pred is nan ")
+            sys.exit()
         loss = loss_fn(pred, y)
         avg_loss += loss
         # 反向传播，更新模型参数

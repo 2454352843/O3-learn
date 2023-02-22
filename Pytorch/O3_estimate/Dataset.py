@@ -211,6 +211,8 @@ class LoadData(Dataset):
         data = np.array(list1)
         data[data==np.nan] = 0
         data = torch.from_numpy(data).float()
+        data = torch.where(torch.isnan(data), torch.full_like(data, 0), data)
+
         # if self.train_flag:
         #     data = self.train_tf(data.float())
         # else:
@@ -277,5 +279,8 @@ if __name__ == "__main__":
     for batch, (image, label) in enumerate(train_loader):
         print(image.max())
         print(image.min())
+        b = torch.where(torch.isnan(image), torch.full_like(image, 0), image)
+        print(b.max())
+        print(b.min())
         # print("image = ",image)
         print("label = ", label)
