@@ -1,4 +1,7 @@
+import sys
 import time
+
+import numpy
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -15,11 +18,19 @@ def train(dataloader, model, loss_fn, optimizer,device):
     avg_loss = 0
     # 从数据加载器中读取batch（一次读取多少张，即批次数），X(图片数据)，y（图片真实标签）。
     for batch, (X, y) in enumerate(dataloader):#固定格式：batch：第几批数据，不是批次大小，（X，y）：数值用括号
+
+
+        # train_dataset = LoadData("Resource/train.txt", True)
+        # X,y = train_dataset[813102]
+        # y = torch.from_numpy(numpy.array(y))
         # 将数据存到显卡
         X, y = X.to(device), y.to(device)
         # 得到预测的结果pred
 
         pred = model(X)
+        # if(torch.isnan(pred).any()):
+        #     print("pred is nan ")
+        #     sys.exit()
         loss = loss_fn(pred, y)
         avg_loss += loss
         # 反向传播，更新模型参数
@@ -63,7 +74,7 @@ def validate(dataloader, model, loss_fn, device):
 
 
 if __name__=='__main__':
-    batch_size = 8
+    batch_size = 1
     # batch_size = 128
 
     # # 给训练集和测试集分别创建一个数据集加载器
@@ -85,7 +96,8 @@ if __name__=='__main__':
     model = model.to(device)
 
     # 定义损失函数，计算相差多少，交叉熵，
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = nn.L1Loss()
+    loss_fn=loss_fn.to(device)
 
     # 定义优化器，用来训练时候优化模型参数，随机梯度下降法
     learning_rate = 1e-3

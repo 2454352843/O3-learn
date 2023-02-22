@@ -215,14 +215,14 @@ class LoadData(Dataset):
             list1.append(data_normal)
 
         data = np.array(list1)
-        data = torch.from_numpy(data)
-        if self.train_flag:
-            data = self.train_tf(data.float())
-        else:
-            data = self.val_tf(data.float())
+        data = torch.from_numpy(data).float()
+        # if self.train_flag:
+        #     data = self.train_tf(data.float())
+        # else:
+        #     data = self.val_tf(data.float())
 
         label = int(item.key)
-
+        label = float(label/300.0)
         return data, label
 
     def __len__(self):
