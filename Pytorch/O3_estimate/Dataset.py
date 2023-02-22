@@ -3,6 +3,7 @@
 '''
 import time
 
+import multitasking
 import config.log as log
 import sys
 from osgeo import gdal
@@ -182,6 +183,19 @@ class LoadData(Dataset):
             # sys.exit()
         return data
 
+    @multitasking
+    def addList(self,item,i):
+
+        path = item.img_path[i]
+        img = self.getImg(path, item)
+        img = self.data_examine(img)
+        img = self.padding_black(img)
+
+        if (self.img_size != img.shape):
+            print('!!!!!!!!!!!---- 图片大小不一致 ---!!!!!!!!!!!!!!')
+            sys.exit()
+        return img
+
     def __getitem__(self, index):  # 返回真正想返回的东西
         logger.info('getitem index:{n}'.format(n=index))
         value = self.imgs_info[index]
@@ -190,18 +204,33 @@ class LoadData(Dataset):
 
         sp = 0
         list = []
-        for path in item.img_path:
-            # print(path)
 
-            # img = cv2.imread(path,-1)
-            img = self.getImg(path, item)
-            img = self.data_examine(img)
-            img = self.padding_black(img)
+        img0 = self.addList(item,0)
+        img1 = self.addList(item,1)
+        img2 = self.addList(item,2)
+        img3 = self.addList(item,3)
+        img4 = self.addList(item,4)
+        img5 = self.addList(item,5)
+        img6 = self.addList(item,6)
+        img7 = self.addList(item,7)
+        img8 = self.addList(item,8)
+        img9 = self.addList(item,9)
+        img10 = self.addList(item,10)
+        img11 = self.addList(item,11)
 
-            if (self.img_size != img.shape):
-                print('!!!!!!!!!!!---- 图片大小不一致 ---!!!!!!!!!!!!!!')
-                sys.exit()
-            list.append(img)
+        multitasking.wait_for_tasks()
+        list.append(img0)
+        list.append(img1)
+        list.append(img2)
+        list.append(img3)
+        list.append(img4)
+        list.append(img5)
+        list.append(img6)
+        list.append(img7)
+        list.append(img8)
+        list.append(img9)
+        list.append(img10)
+        list.append(img11)
 
         # 归一化
         list1 = []
@@ -221,7 +250,7 @@ class LoadData(Dataset):
         #     data = self.val_tf(data.float())
 
         label = int(item.key)
-        label = float(label/300.0)
+        label = float(label / 300.0)
         return data, label
 
     def __len__(self):
