@@ -1,6 +1,8 @@
 '''
 2.2.2 生成数据加载器
 '''
+import time
+
 import config.log as log
 import sys
 from osgeo import gdal
@@ -209,7 +211,7 @@ class LoadData(Dataset):
             list1.append(data_normal)
 
         data = np.array(list1)
-        data[data==np.nan] = 0
+        # data[data==np.nan] = 0
         data = torch.from_numpy(data).float()
         data = torch.where(torch.isnan(data), torch.full_like(data, 0), data)
 
@@ -276,11 +278,12 @@ if __name__ == "__main__":
     #     # print("image = ",image)
     #     print("label = ",label)
 
+    time_start = time.time()
     for batch, (image, label) in enumerate(train_loader):
+        time_end = time.time()
+        print(f"train time: {(time_end - time_start)}")
+        time_start = time_end
         print(image.max())
         print(image.min())
-        b = torch.where(torch.isnan(image), torch.full_like(image, 0), image)
-        print(b.max())
-        print(b.min())
         # print("image = ",image)
         print("label = ", label)
