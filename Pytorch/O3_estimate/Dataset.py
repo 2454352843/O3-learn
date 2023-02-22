@@ -200,35 +200,8 @@ class LoadData(Dataset):
         item = Point(value)
         # print(item)
 
-        sp = 0
-        list = []
-
-        img0 = addList(item, 0)
-        img1 = addList(item, 1)
-        img2 = addList(item, 2)
-        img3 = addList(item, 3)
-        img4 = addList(item, 4)
-        img5 = addList(item, 5)
-        img6 = addList(item, 6)
-        img7 = addList(item, 7)
-        img8 = addList(item, 8)
-        img9 = addList(item, 9)
-        img10 = addList(item, 10)
-        img11 = addList(item, 11)
-
-        multitasking.wait_for_tasks()
-        list.append(img0)
-        list.append(img1)
-        list.append(img2)
-        list.append(img3)
-        list.append(img4)
-        list.append(img5)
-        list.append(img6)
-        list.append(img7)
-        list.append(img8)
-        list.append(img9)
-        list.append(img10)
-        list.append(img11)
+        #数据获取
+        list = getImgMul(item)
 
         # 归一化
         list1 = []

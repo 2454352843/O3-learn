@@ -1,3 +1,5 @@
+import multiprocessing
+
 import multitasking
 import numpy as np
 from osgeo import gdal
@@ -164,14 +166,36 @@ def data_examine(img):  # 如果尺寸太小可以扩充
     return data
 
 
-@multitasking.task
-def addList(self, item, i):
+
+def addList(self, item, i,return_dict):
     path = item.img_path[i]
     img = self.getImg(path, item)
     img = self.data_examine(img)
     img = self.padding_black(img)
 
-    return img
+    return_dict[i] = img
+
+def getImgMul(item):
+
+    manager = multiprocessing.Manager()
+    # 构造返回值存储结构，本质是共享内存方式
+    return_dict = manager.dict()
+    jobs = []
+    for i in range(12):
+        # 将构造的返回值存储结构传递给多线程执行函数，并标识各个线程id
+        p = multiprocessing.Process(target=addList, args=(item,i, return_dict))
+        jobs.append(p)
+        p.start()
+
+    for proc in jobs:
+        proc.join()
+
+    # 所有线程处理完毕后，遍历结果输出
+    list = []
+    for id, arr in return_dict.values():
+        list.append(arr)
+
+    return list
 
 
 if __name__ == '__main__':
