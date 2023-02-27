@@ -167,11 +167,11 @@ def data_examine(img):  # 如果尺寸太小可以扩充
 
 
 
-def addList(self, item, i,return_dict):
+def addList( item, i,return_dict):
     path = item.img_path[i]
-    img = self.getImg(path, item)
-    img = self.data_examine(img)
-    img = self.padding_black(img)
+    img = getImg(path, item)
+    img = data_examine(img)
+    img = padding_black(img)
 
     return_dict[i] = img
 
@@ -192,8 +192,13 @@ def getImgMul(item):
 
     # 所有线程处理完毕后，遍历结果输出
     list = []
-    for id, arr in return_dict.values():
-        list.append(arr)
+    value = return_dict.items()
+    for i in range(12):
+
+        for id, arr in value:
+            if( i == int(id)):
+                list.append(arr)
+
 
     return list
 
