@@ -7,6 +7,7 @@ import pandas as pd
 import glob
 from tqdm import tqdm
 from Pytorch.O3_estimate.Resource import config
+from Pytorch.twice.utils import Gdaltiff
 
 train_ratio = 0.9
 test_ratio = 1 - train_ratio
@@ -18,80 +19,6 @@ data_list, train_list, test_list = [], [], []
 len_list = 0
 
 
-# tiff加载类
-class Gdaltiff():
-    def __init__(self, path):
-        self.path = path
-        ds = gdal.Open(path)
-
-        self.rows = ds.RasterYSize  # 行数
-        self.cols = ds.RasterXSize  # 列数
-        self.bands = ds.RasterCount
-        self.Proj = ds.GetProjection()
-        self.Transform = ds.GetGeoTransform()
-        self.Bandarr = ds.GetRasterBand(1).ReadAsArray()
-        # print(Bandarr.shape)
-        del ds
-
-        self.maxLatmain = self.Transform[3]
-        # minLatmain = Transform[3] + rows * Transform[5]
-        self.minLonmain = self.Transform[0]
-        # maxLonmain = Transform[0] + cols * Transform[1]
-
-    # 根据经纬度读取对应数据
-    def getImg(self, point):
-        ratio = config.ratio
-        x, y = config.img_size
-        lat = float(point['lat'])
-        lon = float(point['lon'])
-
-        lat_value = int((self.maxLatmain - (lat)) / ratio)
-        lon_value = int((lon - self.minLonmain) / ratio)
-
-        # y_min = lat_value - int(y / 2)
-        # y_max = y_min + y
-
-        y_left = lat_value - int(y / 2)
-        y_right = y_left + y
-
-        x_left = lon_value - int(x / 2)
-        x_right = x_left + x
-
-        data = self.Bandarr[y_left:y_right, x_left:x_right]
-
-        getdata = lambda x: self.Bandarr[lat_value - x: lat_value + x, lon_value - x:lon_value + x]
-        # 如果数据在边缘位置 需要进行数组扩充
-        if (x_left < 0):
-            if (y_left < 0):
-                value = lon_value if lon_value < lat_value else lat_value
-            else:
-                value = lon_value if lon_value < self.rows - 1 - lat_value else self.rows - 1 - lat_value
-            data = getdata(value)
-            return data
-
-        if (y_left < 0):
-            value = lat_value if lat_value < self.cols - 1 - lon_value else self.cols - 1 - lon_value
-            data = getdata(value)
-            return data
-
-        if (y_right > self.rows - 1):
-            if (x_right > self.cols - 1):
-                value = self.rows - 1 - lat_value if self.rows - 1 - lat_value < self.cols - 1 - lon_value else self.cols - 1 - lon_value
-            else:
-                value = self.rows - 1 - lat_value if self.rows - 1 - lat_value < lon_value else lon_value
-            data = getdata(value)
-            return data
-
-        if (x_right > self.cols - 1):
-            value = self.cols - 1 - lon_value if self.cols - 1 - lon_value < lat_value else lat_value
-            data = getdata(value)
-            return data
-        # data = Bandarr[0, :]
-
-        return data
-
-    def __str__(self):
-        return self.path
 
 
 def get_tiflist(dir):

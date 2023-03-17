@@ -7,7 +7,7 @@ from torchvision.models import resnet18
 from PIL import Image
 import torchvision.transforms as transforms
 import os
-
+from sklearn.metrics import r2_score
 from Pytorch.twice import models
 from Pytorch.twice.Dataset import LoadData
 
@@ -31,7 +31,7 @@ def padding_black(img,img_size = 512):  # 如果尺寸太小可以扩充
 
 if __name__=='__main__':
 
-    train_dataset = LoadData("Resource/train.txt", True)
+    train_dataset = LoadData("Resource/test.txt", True)
     print("数据个数：", len(train_dataset))
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                batch_size=1,
@@ -41,9 +41,9 @@ if __name__=='__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device} device")
 
-    finetune_net = models.resnet50().to(device)
+    finetune_net = models.resnet18().to(device)
 
-    state_dict = torch.load(r"output/resnet18_no_pretrain_last.pth")
+    state_dict = torch.load(r"output/resnet18_StepLR/resnet18_no_pretrain_last.pth")
     # print("state_dict = ",state_dict)
     finetune_net.load_state_dict(state_dict)
     finetune_net.eval()

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding=utf-8
 import sys
 import time
 
@@ -12,7 +14,7 @@ from Pytorch.twice.Resource import config
 
 torch.cuda.max_split_size_mb = 128
 
-def train(dataloader, model, loss_fn, optimizer,device):
+def train(dataloader, model, loss_fn, optimizer,device,scheduler1):
     size = len(dataloader.dataset)
     avg_loss = 0
     # 从数据加载器中读取batch（一次读取多少张，即批次数），X(图片数据)，y（图片真实标签）。
@@ -27,19 +29,20 @@ def train(dataloader, model, loss_fn, optimizer,device):
         # y = y.reshape(y.size(),1)
 
         y = y.view(y.size()[0],1)
+        X = X.to(torch.float32)
+        y = y.to(torch.float32)
         X, y = X.to(device), y.to(device)
         # 得到预测的结果pred
 
         pred = model(X)
-        if(torch.isnan(pred).any()):
-            print("pred is nan ")
-            sys.exit()
+
         loss = loss_fn(pred, y)
         avg_loss += loss
         # 反向传播，更新模型参数
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+
         # 每训练10次，输出一次当前信息
         if batch % 100 == 0:
             loss, current = loss.item(), batch * len(X)
@@ -48,6 +51,10 @@ def train(dataloader, model, loss_fn, optimizer,device):
     # 当一个epoch完了后返回平均 loss
     avg_loss /= size
     avg_loss = avg_loss.detach().cpu().numpy()
+
+    #更新学习率
+    scheduler1.step()
+    print(optimizer.state_dict()['param_groups'][0]['lr'])
     return avg_loss
 
 
@@ -69,10 +76,10 @@ def validate(dataloader, model, loss_fn, device):
             # 计算预测值pred和真实值y的差距
             test_loss += loss_fn(pred, y).item()
             # 统计预测正确的个数(针对分类)
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+            correct += abs((pred.argmax(1) - y).type(torch.float)).sum().item()
     test_loss /= size
     correct /= size
-    print(f"correct = {correct}, Test Error: \n Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(f"correct = {1-correct}, Test Error: \n Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
     return correct, test_loss
 
 
@@ -99,14 +106,20 @@ if __name__=='__main__':
     model = model.to(device)
 
     # 定义损失函数，计算相差多少，交叉熵，
-    loss_fn = nn.L1Loss()
+    # loss_fn = nn.L1Loss()
+    loss_fn = nn.MSELoss(reduction='mean')
     loss_fn=loss_fn.to(device)
 
-    # 定义优化器，用来训练时候优化模型参数，随机梯度下降法
-    learning_rate = 1e-3
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-    epochs = 50
+    # 定义优化器，用来训练时候优化模型参数，随机梯度下降法
+    # learning_rate = 1e-4
+    # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    scheduler1 = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.8)
+
+    epochs = config.epochs
+
     loss_ = 10
     save_root = config.save_root
 
@@ -114,7 +127,7 @@ if __name__=='__main__':
     for t in range(epochs):
         print(f"Epoch {t + 1}\n-------------------------------")
         time_start = time.time()
-        avg_loss = train(train_dataloader, model, loss_fn, optimizer, device)
+        avg_loss = train(train_dataloader, model, loss_fn, optimizer, device ,scheduler1)
         time_end = time.time()
         print(f"train time: {(time_end - time_start)}")
         # (dataloader, model, loss_fn, device)jif

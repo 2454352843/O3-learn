@@ -2,6 +2,12 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
+from Pytorch.twice.Resource import config
+
+class_num = config.class_num
+ch_in = config.ch_in
+stride = config.stride
+
 class ResBlk(nn.Module):
     """
     resnet block
@@ -12,7 +18,7 @@ class ResBlk(nn.Module):
 
         self.conv1 = nn.Conv2d(ch_in, ch_out, kernel_size=3, stride=stride, padding=1)
         self.bn1 = nn.BatchNorm2d(ch_out)
-        self.conv2 = nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=stride, padding=1)
         self.bn2 = nn.BatchNorm2d(ch_out)
         self.extra = nn.Sequential()
 
@@ -44,17 +50,17 @@ class ResNet18(nn.Module):
         super(ResNet18, self).__init__()
 
         self.conv1 = nn.Sequential(
-            nn.Conv2d(3,64,kernel_size=3,stride=3,padding=0),
+            nn.Conv2d(ch_in,64,kernel_size=3,stride=stride,padding=0),
             nn.BatchNorm2d(64)
         )
-        self.blk1 = ResBlk(64,128,stride=2)
-        self.blk2 = ResBlk(128,256,stride=2)
-        self.blk3 = ResBlk(256,512,stride=2)
-        self.blk4 = ResBlk(512,512,stride=2)
+        self.blk1 = ResBlk(64,128,stride=stride)
+        self.blk2 = ResBlk(128,256,stride=stride)
+        self.blk3 = ResBlk(256,512,stride=stride)
+        self.blk4 = ResBlk(512,512,stride=stride)
 
 
 
-        self.outlayer = nn.Linear(512,10)
+        self.outlayer = nn.Linear(512,class_num)
 
     def forward(self,x):
 
@@ -72,6 +78,10 @@ class ResNet18(nn.Module):
 
         return x
 
+
+def resnet18():
+    model = ResNet18()
+    return model
 
 def main():
     blk = ResBlk(64,128,stride=2)

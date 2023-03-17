@@ -1,5 +1,6 @@
 '''
 2.2.2 生成数据加载器
+加入时空数据
 '''
 import time
 
@@ -63,35 +64,37 @@ class LoadData(Dataset):
             imgs_info = list(map(lambda x: x.strip().split('\t'), imgs_info))
         return imgs_info  # 返回图片信息
 
-
-
     def __getitem__(self, index):  # 返回真正想返回的东西
         # logger.info('getitem index:{n}'.format(n=index))
         value = self.imgs_info[index]
         item = Point(value)
         # print(item)
 
-        #数据获取,清除异常值
+        # 数据获取,清除异常值
         str1 = item.img_arr
         list = []
         for i in range(12):
             data = [float(i) for i in str1[i][1:-1].split(',')]
             list.append(data)
+            # 6159, 3541
+        lat_value = int((53.5675 - (item.lat)) / ratio)
+        lon_value = int((item.lon - 73.4925) / ratio)
+        # 空间数据
+        space = (lat_value - 1) * 6159 + lon_value
 
         # 归一化
         list1 = []
         for i in range(12):
             # print(i)
-            data_normal = normalization(np.array(list[i]).reshape(config.img_size[0],config.img_size[1]), max1[i], min1[i])
+            data_normal = normalization(np.array(list[i]).reshape(config.img_size[0], config.img_size[1]), max1[i],
+                                        min1[i])
             list1.append(data_normal)
 
         data = np.array(list1)
-        data[data==np.nan] = 0
+        data[data == np.nan] = 0
         data = torch.from_numpy(data).float()
         data = torch.where(torch.isnan(data), torch.full_like(data, 0), data)
         data = self.train_tf(data)
-
-
 
         label = int(item.key)
         label = float(label / 300.0)
@@ -146,7 +149,6 @@ if __name__ == "__main__":
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                batch_size=10,
                                                shuffle=True)
-
 
     time_start = time.time()
     for batch, (image, label) in enumerate(train_loader):
