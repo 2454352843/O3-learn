@@ -8,9 +8,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from ST_Dataset import LoadData,WriteData
-
-from Pytorch.twice import models
-from Pytorch.twice.Resource import config
+import models
+from Resource import config
 
 '''
 在3.2的步骤上添加时空数据到数据集中
@@ -97,7 +96,7 @@ if __name__=='__main__':
     #num_workers 线程数 pin_memory 数据存到内存中  shuffle 是否打乱顺序
     # train_dataloader = DataLoader(dataset=train_data, num_workers=4, pin_memory=True, batch_size=batch_size, shuffle=True)
     train_dataloader = DataLoader(dataset=train_data,  pin_memory=True, batch_size=batch_size, shuffle=True)
-    valid_dataloader = DataLoader(dataset=valid_data, num_workers=4, pin_memory=True, batch_size=batch_size)
+    valid_dataloader = DataLoader(dataset=valid_data, pin_memory=True, batch_size=batch_size)
 
     # 如果显卡可用，则用显卡进行训练
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -119,7 +118,7 @@ if __name__=='__main__':
     # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-    scheduler1 = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.8)
+    scheduler1 = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     epochs = config.epochs
 
@@ -129,6 +128,7 @@ if __name__=='__main__':
 
     for t in range(epochs):
         print(f"Epoch {t + 1}\n-------------------------------")
+        print(f"optimizer: {optimizer.state_dict()['param_groups'][0]['lr']}")
         time_start = time.time()
         avg_loss = train(train_dataloader, model, loss_fn, optimizer, device ,scheduler1)
         time_end = time.time()

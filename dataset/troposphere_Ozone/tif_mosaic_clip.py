@@ -6,7 +6,7 @@ arcpy.CheckOutExtension("Spatial")
 
 # .nc files path
 # 工作空间
-nc_folder = r'E:\data\1. S5P_OFFL_L2_O3\workspace'
+nc_folder = r'E:\data\1. S5P_OFFL_L2_O3\workspace-20220930-20230301'
 # tif文件夹
 tif_folder = os.path.join(nc_folder, '2tif')
 # grid count 计算后文件夹
@@ -59,7 +59,7 @@ def mosaicRaster_mean(tif_list):
 				name = raster[:28] + '.tif'
 		# Mosaic to new raster. Noticed the datatype: 32_BIT_FLOAT
 		arcpy.env.snapRaster = name
-		arcpy.MosaicToNewRaster_management(mosaic_list_2, mosaic_folder_mean, name, "", "64_BIT", 0.3, "1", "MEAN", "FIRST")
+		arcpy.MosaicToNewRaster_management(mosaic_list_2, mosaic_folder_mean, name, "", "64_BIT", 0.1, "1", "MEAN", "FIRST")
 		mosaic_list.append(name)
 		num_2 += 1
 		print('Mosaic: ' + name)
@@ -87,7 +87,7 @@ def mosaicRaster_min(tif_list):
 				name = raster[:28] + '.tif'
 		# Mosaic to new raster. Noticed the datatype: 32_BIT_FLOAT
 		arcpy.env.snapRaster = name
-		arcpy.MosaicToNewRaster_management(mosaic_list_2, mosaic_folder_min, name, "", "64_BIT", 0.3, "1", "MINIMUM", "FIRST")
+		arcpy.MosaicToNewRaster_management(mosaic_list_2, mosaic_folder_min, name, "", "64_BIT", 0.1, "1", "MINIMUM", "FIRST")
 		mosaic_list.append(name)
 		num_2 += 1
 		print('Mosaic: ' + name)

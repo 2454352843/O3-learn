@@ -44,7 +44,7 @@ if __name__=='__main__':
 
 
     model = models.resnet18()
-    model.load_state_dict(torch.load(r"output/resnet18_stepLR/resnet18_no_pretrain_last.pth"))
+    model.load_state_dict(torch.load(r"output/resnet18_stepLR_09/resnet18_no_pretrain_last.pth"))
     model.to(device)
 
     # 定义损失函数，计算相差多少，交叉熵，
@@ -61,7 +61,7 @@ if __name__=='__main__':
 
     df_pred = pd.DataFrame(data=pred_list, columns=['pred','label'])
     print(df_pred)
-    df_pred.to_csv('pred_result33.csv', encoding='gbk', index=False)
+    df_pred.to_csv('pred_result09.csv', encoding='gbk', index=False)
 
 
 

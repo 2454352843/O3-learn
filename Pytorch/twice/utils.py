@@ -3,14 +3,14 @@ import multiprocessing
 import multitasking
 import numpy as np
 from osgeo import gdal
-from Pytorch.O3_estimate.Resource import config
+from Pytorch.twice.Resource import config
 
-img_list = ['PS', 'T2M', 'TROPCOL_O3', 'U2M', 'V2M', 'ZPBL', 'SILAM', 'Tropomi', 'DEM', 'NDVI', 'POP', 'pri_sec']
-path = r'Resource\math1.txt'
+img_list = config.math_arrName
+
 
 
 # 返回数据集中使用的mean,std
-def get_math():
+def get_math(path):
     mean_list = []
     std_list = []
     max_list = []
@@ -283,5 +283,3 @@ if __name__ == '__main__':
     get_math()
 
 
-class SandianPicture5:
-    pass

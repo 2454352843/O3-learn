@@ -1,29 +1,31 @@
 '''
 2.2.2 生成数据加载器
-加入时空数据
 '''
 import time
-import torch
-import torchvision.transforms as transforms
-import numpy as np
 
+import multitasking
+import config.log as log
+import sys
+from osgeo import gdal
+import torch
+import numpy as np
+import torchvision.transforms as transforms
+from tqdm import tqdm
+from Pytorch.twice import *
+from Pytorch.twice.utils import *
 # 读取文件格式损坏自动跳过
 from PIL import ImageFile
 
-
-from Pytorch.twice.Utils.ST_utils import *
-from Pytorch.twice.utils import get_math, normalization
-
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 from torch.utils.data import Dataset
 
-
+logger = log.getLogger()
 # 数据归一化与标准化
 img_list = config.arr_list
 # 分辨率
 ratio = config.ratio
 path = config.math_path_st
-
 mean1, std1, max1, min1 = get_math(path)
 
 # transform_BZ= transforms.Normalize(
@@ -61,48 +63,38 @@ class LoadData(Dataset):
             imgs_info = list(map(lambda x: x.strip().split('\t'), imgs_info))
         return imgs_info  # 返回图片信息
 
+
+
     def __getitem__(self, index):  # 返回真正想返回的东西
         # logger.info('getitem index:{n}'.format(n=index))
         value = self.imgs_info[index]
         item = Point(value)
         # print(item)
 
-        # 1 数据获取,清除异常值
+        #数据获取,清除异常值
         str1 = item.img_arr
         list = []
         for i in range(12):
             data = [float(i) for i in str1[i][1:-1].split(',')]
             list.append(data)
 
-        # 2 时空数据获取
-            # 6159, 3541
-        lat_value = int((53.5675 - float(item.lat)) / ratio)
-        lon_value = int((float(item.lon) - 73.4925) / ratio)
-        spatial_data = spatial_embedding(lat_value,lon_value)
-        date_data = date_embedding(item.data)
-        time_data = time_embedding(item.time)
-
-
         # 归一化
         list1 = []
         for i in range(12):
             # print(i)
-            data_normal = normalization(np.array(list[i]).reshape(config.img_size[0], config.img_size[1]), max1[i],
-                                        min1[i])
+            data_normal = normalization(np.array(list[i]).reshape(config.img_size[0],config.img_size[1]), max1[i], min1[i])
             list1.append(data_normal)
 
-        list1.append(np.array(spatial_data))
-        list1.append(np.array(date_data))
-        list1.append(np.array(time_data))
         data = np.array(list1)
-        data[data == np.nan] = 0
+        data[data==np.nan] = 0
         data = torch.from_numpy(data).float()
         data = torch.where(torch.isnan(data), torch.full_like(data, 0), data)
-        # 标准化
         data = self.train_tf(data)
 
+
+
         label = int(item.key)
-        label = float(label / 400.0)
+        label = float(label / 300.0)
         return data, label
 
     def __len__(self):
@@ -154,6 +146,7 @@ if __name__ == "__main__":
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                batch_size=10,
                                                shuffle=True)
+
 
     time_start = time.time()
     for batch, (image, label) in enumerate(train_loader):

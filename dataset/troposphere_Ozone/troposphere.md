@@ -26,3 +26,9 @@ tif转nc，使用库为nc4
 3.单位转换
 
 使用代码和总柱浓度代码一样，单位为mol 转 DU
+
+4. 缺失补全  missingCompleting.py
+
+5. resample_1processed
+
+重采样，分辨率调整为0.01

@@ -14,11 +14,13 @@ test_ratio = 1 - train_ratio
 rootdata = config.base_path
 # tif_list = config.tif_list
 
+'''
+构建白天八小时的数据集
+八个小时为  10 11 12 13 14 15 16 17
+'''
 
 data_list, train_list, test_list = [], [], []
 len_list = 0
-
-
 
 
 def get_tiflist(dir):
@@ -63,7 +65,13 @@ def main():
             data_list = []
             # 4. 读取地面站点数据
             if (time < 10):
-                time = '0' + str(time)
+                if (time > 8):
+                    time = '0' + str(time)
+                else:
+                    continue
+
+            elif (time > 20):
+                continue
             else:
                 time = str(time)
 
@@ -126,15 +134,14 @@ def main():
                 for k in range(len(tif_list)):
                     tif = tif_list[k]
                     arr_value = tif.getImg(point)
-                    arr_value = np.reshape(arr_value,(1,config.img_size[0]*config.img_size[1])).tolist()
+                    arr_value = np.reshape(arr_value, (1, config.img_size[0] * config.img_size[1])).tolist()
                     line = line + '\t' + str(arr_value[0])
-
 
                 line = line + '\n'
                 data_list.append(line)
 
             # 8.保存每小时的数据
-            save_path = r'Resource/databytime/{n}.txt'.format(n = date+'_'+time)
+            save_path = r'Resource/databytime/{n}.txt'.format(n=date + '_' + time)
             with open(save_path, 'w', encoding='UTF-8') as f:
                 for line in data_list:
                     f.write(str(line))
@@ -146,8 +153,8 @@ def shuffle():
     #  读取数据
     data_list = []
     txt_path = r'Resource/databytime'
-    file_list = glob.glob(txt_path+'/*.txt')
-    for path  in  file_list:
+    file_list = glob.glob(txt_path + '/*.txt')
+    for path in file_list:
         with open(path, 'r', encoding='utf-8') as f:
             imgs_info = f.readlines()
             data_list = data_list + imgs_info
@@ -160,13 +167,12 @@ def shuffle():
     for i in range(int(len(data_list) * train_ratio), len(data_list)):
         test_list.append(data_list[i])
 
-
     #  读出数据集为文本格式
-    with open('Resource/train.txt', 'w', encoding='UTF-8') as f:
+    with open('Resource/train-bt.txt', 'w', encoding='UTF-8') as f:
         for train_img in train_list:
             f.write(str(train_img))
 
-    with open('Resource/test.txt', 'w', encoding='UTF-8') as f:
+    with open('Resource/test-bt.txt', 'w', encoding='UTF-8') as f:
         for test_img in test_list:
             f.write(test_img)
 

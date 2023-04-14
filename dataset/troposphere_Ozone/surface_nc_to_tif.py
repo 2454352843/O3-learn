@@ -106,7 +106,7 @@ def main(inputpath,outputpath):
 
 
     value_threshold = 0.75  # 质量控制qu_value
-    resolution = 0.3  # 分辨率 单位度
+    resolution = 0.1  # 分辨率 单位度
 
     if (inputpath[-2:-1] != os.path.sep):
         inputpath = inputpath + os.path.sep
@@ -147,7 +147,7 @@ def main(inputpath,outputpath):
         lats = LatarrNew[mask]
         lons = LonarrNew[mask]
 
-        resolution = 0.3
+        # resolution = 0.3
 
         # O3arrNew[O3arrNew > 10000] = 0
         O3arrNew[qa_value <= value_threshold] = 0
@@ -176,6 +176,6 @@ def main(inputpath,outputpath):
 
 
 if __name__ == '__main__':
-    inputpath = r"E:\data\1. S5P_OFFL_L2_O3\20220501-20220930"
-    outputpath = r"E:\data\1. S5P_OFFL_L2_O3\workspace\2tif"
+    inputpath = r"E:\data\1. S5P_OFFL_L2_O3\20220930-20230301"
+    outputpath = r"E:\data\1. S5P_OFFL_L2_O3\workspace-20220930-20230301\2tif"
     main(inputpath,outputpath)

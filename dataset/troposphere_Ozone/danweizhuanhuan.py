@@ -8,8 +8,8 @@ logger = logging.getLogger()
 
 def arcpy_conversion():
 
-	input = r'E:\data\1. S5P_OFFL_L2_O3\workspace\5clip'
-	output = r'E:\data\1. S5P_OFFL_L2_O3\workspace\6finally\6finally'  # type: str
+	input = r'E:\data\1. S5P_OFFL_L2_O3\workspace-20220930-20230301\5clip'
+	output = r'E:\data\1. S5P_OFFL_L2_O3\workspace-20220930-20230301\6finally'  # type: str
 
 	if not os.path.exists(output):
 		os.makedirs(output)

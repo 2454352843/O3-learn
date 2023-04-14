@@ -13,6 +13,8 @@ tif_list = ['GEOS', 'LandCover', 'SILAM', 'Tropomi']
 GEOS_list = ['PS','T2M','TROPCOL_O3','U2M','V2M','ZPBL']
 LandCover = ['DEM','NDVI','POP','pri_sec']
 
+# ST
+math_path_st = r'Resource/math_ST.txt'
 # 数据集位置顺序
 
 arr_list = ['PS', 'T2M', 'TROPCOL_O3', 'U2M', 'V2M', 'ZPBL', 'cnc_O3', 'TropOMI_O3_PR', 'DEM', 'NDVI', 'POP', 'pri_sec']
