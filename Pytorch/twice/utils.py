@@ -5,7 +5,7 @@ import numpy as np
 from osgeo import gdal
 from Pytorch.twice.Resource import config
 
-img_list = config.math_arrName
+img_list = config.math_arrName_ST
 
 
 
