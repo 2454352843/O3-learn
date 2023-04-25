@@ -217,7 +217,6 @@ class estimate:
             self.transform[3] + (self.transform[5] * 2), self.transform[4],
             self.transform[5])
 
-
         self.writetif(data, transform)
         self.writejpg(data)
 
