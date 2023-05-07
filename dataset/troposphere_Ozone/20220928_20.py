@@ -7,7 +7,8 @@ import numpy as np
 from osgeo import gdal,osr
 from scipy import ndimage as nd
 
-import NC_Util
+from dataset.troposphere_Ozone.year import NC_Util
+
 
 def write_gdal_tif(dataarr,outtif,npDataType,Proj,Transform):
 

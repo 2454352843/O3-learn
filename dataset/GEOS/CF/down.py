@@ -4,7 +4,7 @@
 import datetime
 from datetime import date, timedelta
 import logging
-
+import ssl
 from contextlib import closing
 import requests, os
 import time
@@ -20,6 +20,7 @@ from dataset.GEOS.CF.utils.check_file import down_check
 
 signal.signal(signal.SIGINT, multitasking.killall)
 multitasking.set_max_threads(4)  # 最大线程数为4
+ssl._create_default_https_context = ssl._create_unverified_context#取消全局验证
 
 basepath = r'E:\work\python\data\GEOS_CF\\'
 basepath_ZPBL = r'E:\data\5. GEOS-CF\weather' + os.path.sep
@@ -65,7 +66,7 @@ def download_video(download_url, download_path):
         with request.urlopen( download_url) as file:
             pass
     except Exception as reason:
-        print(reason)
+        print(repr(reason))
         print('------------------------------该url不存在-----------------------------')
         print('------------------------------该url不存在-----------------------------')
         print('------------------------------该url不存在-----------------------------')

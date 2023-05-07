@@ -4,12 +4,15 @@ import sys
 import os
 import glob
 import numpy as np
-import csv
+import tqdm
 from osgeo import gdal, ogr, osr
 from osgeo import gdalconst
 import Interpolation
 
-
+'''
+使用数据为自己下载的数据
+重采样：目标文件夹内全部tif格式文件均进行重采样处理
+'''
 def write_gdal_tif(dataarr,outtif,npDataType,Proj,Transform):
 
     if npDataType == np.float32 :
@@ -36,42 +39,32 @@ def write_gdal_tif(dataarr,outtif,npDataType,Proj,Transform):
 
 def gettiflist(inputpath):
     tiffiles = []
-    for i in range(31):
-        i = i + 1
-        if i < 10:
-            i = '0' + str(i)
 
-        str1 = '2022_05_' + str(i)
-
-
-        path = inputpath + str1 + os.path.sep
-        tiffiles1 = glob.glob(path + "*.tif")
-        tiffiles = tiffiles + tiffiles1
+    tiffiles = glob.glob(inputpath + "*.tif")
 
     print('list长度: ',len(tiffiles))
     return  tiffiles
 
 
 
-def resample(data,time,list,outpath):
+def main():
 
-
+    inputpath = r"F:\data\xyz-O3\SILAM\workspace\2tif" + os.path.sep
+    outputpath = r"F:\data\xyz-O3\SILAM\workspace\3reshape" + os.path.sep
 
     # 重采样后的分辨率
     gresnew = 0.01
 
 
-    tiffiles = list
+    tiffiles = gettiflist(inputpath)
 
+    for i in (range(len(tiffiles))):
 
-    for i in range(len(tiffiles)):
         tifile = tiffiles[i]
 
-        outdir = outpath+ os.path.sep + data + os.path.sep
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-        outtiffile = outdir + os.path.basename(tifile)[:-4] +"_"+time+ "_temp.tif"
-        outtif = outdir + os.path.basename(tifile)[:-4]  +"_"+time+ ".tif"
+
+        outtiffile = outputpath + os.path.basename(tifile)[:-4] + "_temp.tif"
+        outtif = outputpath + os.path.basename(tifile)[:-4] + ".tif"
 
         if  (os.path.exists(outtif)):
             print(f"{outtif}  exist")
@@ -115,29 +108,6 @@ def resample(data,time,list,outpath):
         write_gdal_tif(Bandarr,outtif,npDataType,Proj1,Transforma)
 
         os.remove(outtiffile)
-
-
-def main():
-    worksapce = r'F:\data\xyz-O3\SILAM\teacher'
-    outputpath = r"F:\data\xyz-O3\SILAM\workspace\31reshape"
-    for i in range(31):
-        i = i + 1
-        if i < 10:
-            i = '0' + str(i)
-
-        str1 = '2022_05_' + str(i)
-        print(str1)
-
-        for j in range(24):
-            if j < 10:
-                j = '0' + str(j)
-
-            work_folder = worksapce + os.path.sep + str1 + os.path.sep + str(j)
-            list = glob.glob(work_folder+os.path.sep +'*.tif')
-
-            # 调用裁剪方法
-            resample(str1, str(j), list,outputpath )
-
 
 if __name__ == '__main__':
     main()

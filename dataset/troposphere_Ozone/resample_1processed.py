@@ -97,6 +97,7 @@ def resample(list, outpath):
         Proj1 = ds1.GetProjection()
         Transform1 = ds1.GetGeoTransform()
         Bandarr = ds1.GetRasterBand(1).ReadAsArray()
+        Bandarr[Bandarr<=0] = np.nan
         del ds1
 
         Transforma = [Transform1[0], gresnew, Transform1[2], Transform1[3], Transform1[4], -gresnew]
@@ -109,8 +110,8 @@ def resample(list, outpath):
 
 
 def main():
-    inputpath = r'E:\data\1. S5P_OFFL_L2_O3\workspace-20220930-20230301\7missingCompleting'
-    outputpath = r"E:\data\1. S5P_OFFL_L2_O3\workspace-20220930-20230301\8GRA"
+    inputpath = r'F:\data\xyz-O3\S5P\workspace-20220930-20230301\7missingCompleting'
+    outputpath = r"F:\data\xyz-O3\S5P\workspace-20220930-20230301\8new_GRA"
 
     list = glob.glob(inputpath + os.path.sep + '*.tif')
 

@@ -1,6 +1,6 @@
 import codecs
 import os
-
+import time
 import cv2
 import gdal
 import numpy as np
@@ -22,13 +22,11 @@ from Utils.estimate_ST_Dataset import LoadData, WriteData
 输出： tif
 '''
 
-date = '2022_05_01'
-time = '00'
 
 
 class estimate:
 
-    def __init__(self, date=date, time=time):
+    def __init__(self, date, time):
         self.date = date
         self.time = time
         self.ratio = config.ratio
@@ -40,9 +38,9 @@ class estimate:
         self.base_path = config.base_path
         self.outdir = r'Resource/estimate'
 
-        # self.tif_list = self.get_tif()
-        # self.data_list = self.get_datalist()
-        # self.get_folder()
+        self.tif_list = self.get_tif()
+        self.data_list = self.get_datalist()
+        self.get_folder()
 
     # 读取估算中需要使用的tif
     def get_tif(self):
@@ -137,7 +135,7 @@ class estimate:
                      'lon': lon}
             # data = (lat if len(lat.split('.')[-1])>=2 else lat + '0') + '\t' +(lon if len(lon.split('.')[-1]) >= 2 else lon + '0') + '\t' + date + '\t' + Timelist[j] + '\t' + str(O3list[j])
             line = (lat if len(lat.split('.')[-1]) >= 2 else lat + '0') + '\t' + (
-                lon if len(lon.split('.')[-1]) >= 2 else lon + '0') + '\t' + date + '\t' + time + '\t' + 'Ozone'
+                lon if len(lon.split('.')[-1]) >= 2 else lon + '0') + '\t' + self.date + '\t' + self.time + '\t' + 'Ozone'
             for k in range(len(tif_list)):
                 tif = tif_list[k]
                 arr_value = tif.getImg(point)
@@ -151,9 +149,21 @@ class estimate:
                 f.write(str(line))
         return
 
+    # 删除临时文件
+    def remove_tmp(self):
+        for root,folder,files in os.walk(self.folder):
+            for file in files:
+                filename = root+os.path.sep + file
+                try:
+                    os.remove(filename)
+                except Exception as e:
+                    print(e)
+
+
     def get_folder(self):
         # temp拆分 拆分为几个小的txt
-        output_prefix = r'Resource\temp\temp'
+        output_prefix = r'Resource\temp'
+        out_dir = output_prefix + os.path.sep +'temp'+ self.date+'_'+self.time
         num_lines_per_file = 1000000
         # Open the input file in UTF-8 encoding
         with codecs.open(self.temptxt, 'r', encoding='utf-8') as f:
@@ -162,7 +172,7 @@ class estimate:
             # Create a counter for the current output file numbert
             file_number = 1
             # Create an output file with the correct file number
-            output_file = codecs.open(f'{output_prefix}_{file_number}.txt', 'w', encoding='utf-8')
+            output_file = codecs.open(f'{out_dir}_{file_number}.txt', 'w', encoding='utf-8')
             print(f"\n构建第{file_number}个临时数据集")
             # Iterate over the lines in the input file
             for line in tqdm(f):
@@ -177,15 +187,16 @@ class estimate:
                     file_number += 1
                     line_number = 1
                     print(f"\n构建第{file_number}个临时数据集")
-                    output_file = codecs.open(f'{output_prefix}_{file_number}.txt', 'w', encoding='utf-8')
+                    output_file = codecs.open(f'{out_dir}_{file_number}.txt', 'w', encoding='utf-8')
 
             # Close the last output file
             output_file.close()
-            os.remove(self.temptxt)
+            # os.remove(self.temptxt)
 
     def get_dataset(self, i=0):
         for root, dirs, files in os.walk(self.folder):
             list3 = [n for n in filter(lambda x: 'txt' in x[-3:], files)]
+            list3 = [n for n in filter(lambda x:  self.date+'_'+self.time in x, list3)]
             txts = [root + os.path.sep + txt for txt in list3]
 
         self.txt_len = len(txts)
@@ -235,12 +246,12 @@ class estimate:
                 image1.putpixel((i, j), (int(data[i, j]), int(data[i, j]), int(data[i, j])))
 
         # image1.show()
-        save_path = self.outdir + os.path.sep + 'pred_result_{n}.png'.format(n=date + '_' + time)
+        save_path = self.outdir + os.path.sep + 'pred_result_{n}.png'.format(n=self.date + '_' + self.time)
         image1.save(save_path)
 
     def writetif(self,data, geotransform):
         print('开始生成tif')
-        outname = self.outdir + os.path.sep + 'pred_result_{n}.tif'.format(n=date + '_' + time)
+        outname = self.outdir + os.path.sep + 'pred_result_{n}.tif'.format(n=self.date + '_' + self.time)
         nl, ns = [data.shape[0], data.shape[1]]
 
         bands = 1
@@ -257,7 +268,7 @@ class estimate:
 
     # 驱动估算主函数
     def drive_estamite(self):
-        save_path = r'Resource/pred_result_{n}.csv'.format(n=date + '_' + time)
+        save_path = r'Resource/pred_result_{n}.csv'.format(n=self.date + '_' + self.time)
         if os.path.exists(save_path):
             return save_path
         batch_size = 32
@@ -316,6 +327,12 @@ class estimate:
 
 
 if __name__ == '__main__':
-    a = estimate()
-    # a.get_datalist()
+    time_start = time.time()
+    date1 = '2022_05_01'
+    time1 = '16'
+    a = estimate(date1,time1)
+
     a.run()
+    time_end = time.time()
+    print(f"\ntrain time: {(time_end - time_start)}")
+    a.remove_tmp()
