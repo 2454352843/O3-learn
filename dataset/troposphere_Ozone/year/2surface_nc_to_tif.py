@@ -176,6 +176,6 @@ def main(inputpath,outputpath):
 
 
 if __name__ == '__main__':
-    inputpath = r"F:\down\Tropomi"
-    outputpath = r"F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401\2tif"
+    inputpath = r"H:\down\Tropomi"
+    outputpath = r"H:\data\xyz-O3\S5P\workspace\workspace-20230301-230401\2tif"
     main(inputpath,outputpath)

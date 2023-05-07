@@ -60,7 +60,7 @@ def resample(list, outpath):
     for i in range(len(tiffiles)):
         tifile = tiffiles[i]
 
-        outdir = outpath + os.path.sep + os.path.sep
+        outdir = outpath + os.path.sep
         if not os.path.exists(outdir):
             os.makedirs(outdir)
         outtiffile = outdir + os.path.basename(tifile)[:-4] + "_" + "_temp.tif"
@@ -110,8 +110,8 @@ def resample(list, outpath):
 
 
 def main():
-    inputpath = r'F:\data\xyz-O3\GEOS-CF\workspace\ozone\2tif'
-    outputpath = r"F:\data\xyz-O3\GEOS-CF\workspace\ozone\3resample"
+    inputpath = r'H:\data\xyz-O3\GEOS-CF\workspace\ozone\2tif'
+    outputpath = r"H:\data\xyz-O3\GEOS-CF\workspace\ozone\3resample"
 
     list = glob.glob(inputpath + os.path.sep + '*.tif')
 
