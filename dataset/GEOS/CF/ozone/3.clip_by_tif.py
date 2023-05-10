@@ -14,8 +14,8 @@ arcpy.CheckOutExtension("Spatial")
 # .nc files path
 
 # tif文件夹
-worksapce = r'F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401\8resample'
-output_floder = r'F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401\9clip'
+worksapce = r'F:\data\xyz-O3\GEOS-CF\workspace\ozone\2tif'
+output_floder = r'F:\data\xyz-O3\GEOS-CF\workspace\ozone\3clip'
 
 # .shp file path
 mask_shp = r"E:\data\5-mouth-dataset\LandCover\2022_05_09\DEM.tif"

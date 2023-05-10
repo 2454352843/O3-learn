@@ -110,8 +110,8 @@ def resample(list, outpath):
 
 
 def main():
-    inputpath = r'H:\data\xyz-O3\GEOS-CF\workspace\ozone\2tif'
-    outputpath = r"H:\data\xyz-O3\GEOS-CF\workspace\ozone\3resample"
+    inputpath = r'F:\data\xyz-O3\GEOS-CF\workspace\ozone\3clip'
+    outputpath = r"F:\data\xyz-O3\GEOS-CF\workspace\ozone\4resample"
 
     list = glob.glob(inputpath + os.path.sep + '*.tif')
 

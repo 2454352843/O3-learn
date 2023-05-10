@@ -6,7 +6,7 @@ arcpy.CheckOutExtension("Spatial")
 
 # .nc files path
 # 工作空间
-nc_folder = r'F:\data\xyz-O3\S5P\workspace\workspace-2022-20220501'
+nc_folder = r'F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401'
 # tif文件夹
 tif_folder = os.path.join(nc_folder, '2tif')
 # grid count 计算后文件夹
@@ -47,7 +47,7 @@ def mosaicRaster_mean(tif_list):
 	num_list, mosaic_list = [], []
 	# Identify the same day's raster, the different dateset has different identity. In the VIIRS product, we decided the raster is [:28]
 	for raster in tif_list:
-		num = raster[:18]
+		num = raster[:28]
 		if num not in num_list:
 			num_list.append(num)
 	# Mosaic the same day's raster
@@ -75,16 +75,16 @@ def mosaicRaster_min(tif_list):
 	num_list, mosaic_list = [], []
 	# Identify the same day's raster, the different dateset has different identity. In the VIIRS product, we decided the raster is [:28]
 	for raster in tif_list:
-		num = raster[:13]
+		num = raster[:28]
 		if num not in num_list:
 			num_list.append(num)
 	# Mosaic the same day's raster
 	for num in num_list:
 		mosaic_list_2 = []
 		for raster in tif_list:
-			if raster[:13] == num:
+			if raster[:28] == num:
 				mosaic_list_2.append(raster)
-				name = raster[:13] + '.tif'
+				name = raster[:28] + '.tif'
 		# Mosaic to new raster. Noticed the datatype: 32_BIT_FLOAT
 		arcpy.env.snapRaster = name
 		arcpy.MosaicToNewRaster_management(mosaic_list_2, mosaic_folder_min, name, "", "64_BIT", 0.05, "1", "MINIMUM", "FIRST")
@@ -121,7 +121,7 @@ def clipRaster(mosaic_list,mosaic_folder):
 
 
 def main1(type):
-	# grid_count()
+	grid_count()
 	# 读取文件
 	search_criteria = "*.tif"
 	q = os.path.join(grid_folder, search_criteria)

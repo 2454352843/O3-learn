@@ -8,8 +8,8 @@ from tqdm import tqdm
 2.检查缺失
 '''
 
-input_folder = r'F:\data\xyz-O3\S5P\workspace\workspace-20220930-20230301\9clip'
-output_path = r'F:\data\xyz-O3\S5P\dataset'
+input_folder = r'F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401\9clip'
+output_path = r'F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401\10finally'
 
 
 def get_folder(tif):

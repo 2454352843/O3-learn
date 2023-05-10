@@ -13,7 +13,7 @@ arcpy.CheckOutExtension("ImageAnalyst")  # 检查许可
 arcpy.CheckOutExtension("spatial")
 
 # 工作空间
-nc_folder = r'F:\data\xyz-O3\S5P\workspace\workspace-2022-20220501'
+nc_folder = r'F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401'
 # tif文件夹
 input_folder = os.path.join(nc_folder, '6zhuanhuan')
 # grid output_folder 计算后文件夹

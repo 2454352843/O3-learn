@@ -49,8 +49,8 @@ def gettiflist(inputpath):
 
 def main():
 
-    inputpath = r"F:\data\xyz-O3\SILAM\workspace\2tif" + os.path.sep
-    outputpath = r"F:\data\xyz-O3\SILAM\workspace\3reshape" + os.path.sep
+    inputpath = r"F:\data\xyz-O3\GEOS-CF\workspace\weather\3clip" + os.path.sep
+    outputpath = r"F:\data\xyz-O3\GEOS-CF\workspace\weather\4resample" + os.path.sep
 
     # 重采样后的分辨率
     gresnew = 0.01

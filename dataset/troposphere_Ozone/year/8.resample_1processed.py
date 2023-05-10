@@ -110,8 +110,8 @@ def resample(list, outpath):
 
 
 def main():
-    inputpath = r'F:\data\xyz-O3\S5P\workspace\workspace-2022-20220501\7missingCompleting'
-    outputpath = r"F:\data\xyz-O3\S5P\workspace\workspace-2022-20220501\8GRA"
+    inputpath = r'F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401\7missingCompleting'
+    outputpath = r"F:\data\xyz-O3\S5P\workspace\workspace-20230301-230401\8resample"
 
     list = glob.glob(inputpath + os.path.sep + '*.tif')
 
