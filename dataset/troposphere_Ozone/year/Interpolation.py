@@ -38,7 +38,7 @@ def bilinearDeal(infile,outfile,xsize,ysize):
     
     del ds 
 
-def cubicDeal(infile,outfile,xsize,ysize):
+def cubicDeal(infile,outfile,xsize,ysize) -> object:
 
     """重采样"""
     # GRA_Mode

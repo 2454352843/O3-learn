@@ -9,6 +9,8 @@ from osgeo import gdal, ogr, osr
 from osgeo import gdalconst
 import Interpolation
 
+# 重采样后的分辨率
+gresnew = 0.01
 
 def write_gdal_tif(dataarr, outtif, npDataType, Proj, Transform):
     if npDataType == np.float32:
@@ -53,7 +55,7 @@ def gettiflist(inputpath):
 
 def resample(list, outpath):
     # 重采样后的分辨率
-    gresnew = 0.01
+    global gresnew
 
     tiffiles = list
 
