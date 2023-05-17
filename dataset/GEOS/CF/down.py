@@ -22,8 +22,8 @@ signal.signal(signal.SIGINT, multitasking.killall)
 multitasking.set_max_threads(4)  # 最大线程数为4
 ssl._create_default_https_context = ssl._create_unverified_context#取消全局验证
 
-basepath = r'E:\work\python\data\GEOS_CF\\'
-basepath_ZPBL = r'E:\data\5. GEOS-CF\weather' + os.path.sep
+basepath = r'H:\work\python\data\GEOS_CF\\'
+basepath_ZPBL = r'H:\data\5. GEOS-CF\weather' + os.path.sep
 bathurl = 'https://portal.nccs.nasa.gov/datashare/gmao/geos-cf/v1/forecast/'
 o3path = 'down_cf_o3.txt'
 weatherpath = 'down_cf_weather.txt'

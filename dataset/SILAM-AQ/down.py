@@ -21,7 +21,7 @@ multitasking.set_max_threads(4)  # 最大线程数为cpu核数*2
 import urllib3
 
 urllib3.disable_warnings()
-basepath = r'E:\data\3. SILAM\silam_china_v5_5_1'
+basepath = r'H:\data\3. SILAM\silam_china_v5_5_1'
 bathurl = 'https://silam.fmi.fi/thredds/ncss/silam_china_v5_5_1/files'
 
 # 跳过代理
