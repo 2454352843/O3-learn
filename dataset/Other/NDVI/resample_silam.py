@@ -37,7 +37,7 @@ def write_gdal_tif(dataarr,outtif,npDataType,Proj,Transform):
 
 if __name__ == '__main__':
 
-    inputpath = r"E:\data\2. LandCover\5yuedataset" + os.path.sep
+    inputpath = r"I:\data\xyz-O3\LandCover\NDVI\drive-download-20230518T102518Z-001" + os.path.sep
     # outputpath = r"E:\data\3. SILAM\workspace\3reshape" + os.path.sep
 
     # 重采样后的分辨率

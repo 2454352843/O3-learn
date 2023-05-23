@@ -14,10 +14,10 @@ arcpy.CheckOutExtension("Spatial")
 # .nc files path
 
 # tif文件夹
-worksapce = r'E:\data\5-mouth-dataset'
-
+worksapce = r'I:\data\dataset\LandCover\pop'
+output_ = r'I:\data\dataset\LandCover\pop'
 # .shp file path
-mask_shp = r"E:\data\5-mouth-dataset\LandCover\2022_05_09\DEM.tif"
+mask_shp = r"I:\data\xyz-O3\LandCover\DEM.tif"
 tif_list = ['GEOS',  'SILAM', 'Tropomi']
 
 def clipRaster(work_folder, mosaic_list):
@@ -28,13 +28,18 @@ def clipRaster(work_folder, mosaic_list):
         if('DEM' in in_raster):
             continue
         # Execute ExtractByMask
-
-        clip_name = in_raster[:-4].split(os.path.sep)[-1] + 'cp.tif'
+        basepath,basename = os.path.split(in_raster)
+        date = basepath.split(os.path.sep)[-1]
+        # output_folder = output_ + os.path.sep + date
+        output_folder = output_
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+        clip_name = output_folder + os.path.sep+ basename[:-4].split(os.path.sep)[-1] + '.tif'
 
         outExtractByMask = ExtractByMask(in_raster, mask_shp)
         try:
             os.remove(in_raster)
-            outExtractByMask.save(in_raster)
+            outExtractByMask.save(clip_name)
 
         except Exception:
 
@@ -50,10 +55,8 @@ def clipRaster(work_folder, mosaic_list):
 def main():
 
 
+    for root, dirs, files in os.walk(worksapce):
 
-    for root, dirs, files in os.walk(worksapce + os.path.sep + 'LandCover'):
-
-        print root
         list3 = [n for n in filter(lambda x: 'tif' in x[-3:],files )]
         tifs = [root+ os.path.sep + tif for  tif in list3]
 
@@ -67,4 +70,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
