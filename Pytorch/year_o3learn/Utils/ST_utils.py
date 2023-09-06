@@ -1,5 +1,5 @@
 import random
-from Pytorch.twice.Resource import config
+from Pytorch.year_o3learn.Resource import config
 import calendar
 
 '''
@@ -47,8 +47,8 @@ def get_xm(m, x, x_bar):
 # 空间镶嵌
 def spatial_embedding(lat, lon):
     m = config.img_size[0]
-    lat_value = config.lat_value
-    lon_value = config.lon_value
+    lat_value = config.lat_HB
+    lon_value = config.lon_HB
 
     # 纬度lat计算
     lat_list = []
@@ -132,6 +132,7 @@ def date_embedding(date):
 
 # 时间镶嵌
 def time_embedding(time):
+    # 8-20 一共13个小时
     time = int(time)
     m = config.img_size[0]
     time_bar = int(24 / m)

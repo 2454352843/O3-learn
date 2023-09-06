@@ -1,4 +1,6 @@
 import codecs
+import datetime
+import glob
 import os
 import time
 import cv2
@@ -11,9 +13,9 @@ from osgeo import osr
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from Pytorch.twice import models
-from Pytorch.twice.Resource import config
-from Pytorch.twice.utils import Gdaltiff
+from Pytorch.year_o3learn import models
+from Pytorch.year_o3learn.Resource import config
+from Pytorch.year_o3learn.utils import Gdaltiff
 from Utils.estimate_ST_Dataset import LoadData, WriteData
 
 '''
@@ -30,16 +32,19 @@ class estimate:
         self.date = date
         self.time = time
         self.ratio = config.ratio
-        self.rows = config.lat_value
-        self.cols = config.lon_value
+        self.rows = config.lat_HB
+        self.cols = config.lon_HB
         self.transform = config.transform
-        self.temptxt = r'Resource/temp.txt'
+        self.temptxt = rf'Resource/temp_{date}_{time}.txt'
         self.folder = r'Resource/temp'
         self.base_path = config.base_path
         self.outdir = r'Resource/estimate'
 
         self.tif_list = self.get_tif()
-        self.data_list = self.get_datalist()
+        if self.tif_list == None:
+            return
+
+        self.get_datalist()
         self.get_folder()
 
     # 读取估算中需要使用的tif
@@ -47,53 +52,101 @@ class estimate:
         filesMap = {}
         tif_list = config.tif_list
 
-        for i in tif_list:
+        for dir in tif_list:
             map = {}
-            for root, dirs, files in os.walk(self.base_path + os.path.sep + i):
-                list = []
-                date = root.split(os.path.sep)[-1]
-                for file_i in files:
-                    if 'tif' in file_i[-4:]:
-                        list.append(root + os.path.sep + file_i)
-                map[date] = list
+            # for root, dirs, files in os.walk(self.base_path + os.path.sep + i):
+            #     list = []
+            #     date = root.split(os.path.sep)[-1]
+            #     for file_i in files:
+            #         if 'tif' in file_i[-4:]:
+            #             list.append(root + os.path.sep + file_i)
+            #     map[date] = list
+            #
+            # # print(map)train_tf
+            # 读取landcover
+            if (dir == 'LandCover'):
+                # 读取辅助数据
+                other_files = glob.glob(self.base_path + os.path.sep + 'LandCover//*.tif')
+                # 读取ndvi
+                for root, dirs, files in os.walk(self.base_path + os.path.sep + 'LandCover//NDVI'):
+                    if (len(files) == 0):
+                        continue
+                    list11 = []
+                    date = root.split(os.path.sep)[-1]
+                    for file_i in files:
+                        if 'tif' in file_i[-4:]:
+                            list11.append(root + os.path.sep + file_i)
+                    map[date] = list11 + other_files
 
-            # print(map)train_tf
-            map.pop(i)
-            filesMap[i] = map
+            else:  # 读取其他文件
+                for root, dirs, files in os.walk(self.base_path + os.path.sep + dir):
+                    if (len(files) == 0):
+                        continue
+                    list11 = []
+                    date = root.split(os.path.sep)[-1]
+                    for file_i in files:
+                        if 'tif' in file_i[-4:]:
+                            list11.append(root + os.path.sep + file_i)
+                    map[date] = list11
+
+            filesMap[dir] = map
 
         #  筛选读取改时间点对应的文件
         list_str = []
         date = self.date
         time = self.time
+        if not date in filesMap['GEOS'].keys():
+            return
         for k in filesMap['GEOS'][date]:
-            if time in k[-7:]:
+            if (time in k[-7:] and 'O3' not in k):
                 # print(Timelist[j][:2])
                 # print(k[-7:])
                 list_str.append(k)
 
+        if not date in filesMap['SILAM'].keys():
+            return
         for k in filesMap['SILAM'][date]:
             if time in k[-6:]:
                 list_str.append(k)
 
+        if not date in filesMap['Tropomi'].keys():
+            return
         for k in filesMap['Tropomi'][date]:
             if not 'temp' in k:
                 list_str.append(k)
 
-        if int(date[-2:]) <= 17:
+        # 筛选landcover
+        dates = list((filesMap['LandCover']).keys())
 
-            for k in filesMap['LandCover'][date[:-2] + '09']:
-                if ('resample' in k):
-                    continue
-                elif ('terti' in k):
-                    continue
+        # 确定NDVI数据时间
+        date_r = dates[0]
+        for i in range(len(date_r) - 1):
+            date_i = dates[i + 1]
+            second_date = datetime.datetime.strptime(date_i, '%Y_%m_%d')
+            first_date = datetime.datetime.strptime(date_r, '%Y_%m_%d')
+            date_value = datetime.datetime.strptime(date, '%Y_%m_%d')
+            date_r = date_r if abs(int((first_date - date_value).days)) < abs(
+                int((second_date - date_value).days)) else date_i
+
+        for k in filesMap['LandCover'][date_r]:
+            if not 'temp' in k:
                 list_str.append(k)
-        else:
-            for k in filesMap['LandCover'][date[:-2] + '25']:
-                if ('resample' in k):
-                    continue
-                elif ('terti' in k):
-                    continue
-                list_str.append(k)
+
+        # 如果缺少数据，则跳到下一条数据
+        if len(list_str) < 11:
+            list1 = []
+            arr = config.arr_list
+            for value in arr:
+                mark = 0
+                for i in list_str:
+                    if value in i:
+                        mark = 1
+                        break
+                if mark == 0:
+                    list1.append(value)
+            line = f"{date}_{time}  缺少{11 - len(list_str)}个数据,缺少的数据为：{list1}"
+            print(line)
+            return
 
         return list_str
 
@@ -113,15 +166,17 @@ class estimate:
         rows = tif_list[0].rows
         cols = tif_list[0].cols
 
-        maxLat = tif_list[0].Transform[3]
-        minLon = tif_list[0].Transform[0]
+        maxLat = config.maxLat
+        minLon = config.minLon
         Lonlist = []
         Latlist = []
         print('构建经纬度队列')
-        for i in tqdm(range(rows - 4)):
-            for j in range(cols - 4):
-                lon = minLon + 0.01 * (j + 2)
-                lat = maxLat - 0.01 * (i + 2)
+
+        # 北纬(lat)32°～40°，东经(long)114°～121°  big:lon 107-124 lat 28-45
+        for i in tqdm(range(config.lat_HB)):
+            for j in range(config.lon_HB):
+                lon = minLon + 0.01 * (j )
+                lat = maxLat - 0.01 * (i )
                 Lonlist.append(lon)
                 Latlist.append(lat)
 
@@ -162,8 +217,10 @@ class estimate:
 
     def get_folder(self):
         # temp拆分 拆分为几个小的txt
-        output_prefix = r'Resource\temp'
-        out_dir = output_prefix + os.path.sep +'temp'+ self.date+'_'+self.time
+        output_prefix = r'D:\work\python\pycharm\O3-learn\Pytorch\year_o3learn\Resource\temp'
+        out_dir = output_prefix + os.path.sep +'temp_'+ self.date+'_'+self.time
+        if not os.path.exists(output_prefix):
+            os.makedirs(output_prefix)
         num_lines_per_file = 1000000
         # Open the input file in UTF-8 encoding
         with codecs.open(self.temptxt, 'r', encoding='utf-8') as f:
@@ -215,18 +272,19 @@ class estimate:
         predict_data = pd.read_csv(path, encoding="GBK").sort_values('mark')  # ,index_col=0)
 
         predict_mark = [i * 1 for i in predict_data.to_numpy()[:, 1]]
-        predict_pred = [i * 300 for i in predict_data.to_numpy()[:, 0]]
+        predict_pred = [i * 400 for i in predict_data.to_numpy()[:, 0]]
 
-        add = (self.rows - 4) * (self.cols - 4) - len(predict_pred)
-        data = np.array(predict_pred + [0 for i in range(add)]).reshape([self.rows - 4, self.cols - 4])
+        add = (self.rows ) * (self.cols ) - len(predict_pred)
+        data = np.array(predict_pred + [0 for i in range(add)]).reshape([self.rows, self.cols])
         data[data>400] = 0
         data[data<0] = 0
         print(f"\n最大值为:{data.max()}")
         print(f'最小值为:{data.min()}')
-        transform = (
-            self.transform[0] + (2 * self.transform[1]), self.transform[1], self.transform[2],
-            self.transform[3] + (self.transform[5] * 2), self.transform[4],
-            self.transform[5])
+        # transform = (
+        #     self.transform[0] + (2 * self.transform[1]), self.transform[1], self.transform[2],
+        #     self.transform[3] + (self.transform[5] * 2), self.transform[4],
+        #     self.transform[5])
+        transform = self.transform
 
         self.writetif(data, transform)
         self.writejpg(data)
@@ -259,7 +317,7 @@ class estimate:
         out_tif = driver.Create(outname, ns, nl, bands, gdal.GDT_Float64)
         out_tif.SetGeoTransform(geotransform)
         srs = osr.SpatialReference()
-        srs.SetWellKnownGeogCS('EPSG:4326')
+        srs.SetWellKnownGeogCS('WGS84')
         im_proj = srs.ExportToWkt()
         # proj_type = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]'
         out_tif.SetProjection(im_proj)  # 给新建图层赋予投影信息
@@ -284,7 +342,7 @@ class estimate:
             print(f"Using {device} device")
 
             model = models.resnet18()
-            model.load_state_dict(torch.load(r"output/resnet18_stepLR/resnet18_no_pretrain_last.pth"))
+            model.load_state_dict(torch.load(r"D:\work\python\pycharm\O3-learn\Pytorch\year_o3learn\output\resnet18-big\resnet18_no_pretrain_best.pth"))
             model.to(device)
 
             # 定义损失函数，计算相差多少，交叉熵，
@@ -325,6 +383,8 @@ class estimate:
                 mark_list += me
             return [pred_list, mark_list]
 
+    def __str__(self):
+        return f'{self.date}_{self.time}'
 
 if __name__ == '__main__':
     time_start = time.time()
@@ -335,4 +395,4 @@ if __name__ == '__main__':
     a.run()
     time_end = time.time()
     print(f"\ntrain time: {(time_end - time_start)}")
-    a.remove_tmp()
+    # a.remove_tmp()

@@ -10,8 +10,8 @@ import numpy as np
 # 读取文件格式损坏自动跳过
 from PIL import ImageFile
 
-from Pytorch.twice.Utils.ST_utils import *
-from Pytorch.twice.utils import get_math, normalization
+from Pytorch.year_o3learn.Utils.ST_utils import *
+from Pytorch.year_o3learn.utils import get_math, normalization
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 from torch.utils.data import Dataset
@@ -63,26 +63,27 @@ class LoadData(Dataset):
         # logger.info('getitem index:{n}'.format(n=index))
         value = self.imgs_info[index]
         item = Point(value)
-        # print(index)
+        # print(item)
 
         # 1 数据获取,清除异常值
         str1 = item.img_arr
         list = []
-        for i in range(12):
+        for i in range(11):
             data = [float(i) for i in str1[i][1:-1].split(',')]
             list.append(data)
 
         # 2 时空数据获取
-        # 6159, 3541
-        lat_value = int((53.5675 - float(item.lat)) / ratio)
-        lon_value = int((float(item.lon) - 73.4925) / ratio)
+        # 华北平原地区
+        # 北纬(lat)32°～40°，东经(long)114°～121°  big:lon 107-124 lat 28-45
+        lat_value = int((45 - float(item.lat)) / ratio + 0.1)
+        lon_value = int((float(item.lon) - 107) / ratio + 0.1)
         spatial_data = spatial_embedding(lat_value, lon_value)
         date_data = date_embedding(item.data)
         time_data = time_embedding(item.time)
 
         # 归一化
         list1 = []
-        for i in range(12):
+        for i in range(11):
             # print(i)
             data_normal = normalization(np.array(list[i]).reshape(config.img_size[0], config.img_size[1]), max1[i],
                                         min1[i])
@@ -98,10 +99,8 @@ class LoadData(Dataset):
         # 标准化
         data = self.train_tf(data)
 
-        # label = int(item.key)
-        # label = float(label / 400.0)
-        mark = lat_value * 6159 + lon_value + 1
-        return data,mark
+        mark = lat_value * config.lon_HB + lon_value + 1
+        return data, mark
 
     def __len__(self):
         return len(self.imgs_info)

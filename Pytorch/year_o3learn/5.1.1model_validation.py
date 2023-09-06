@@ -35,7 +35,7 @@ if __name__=='__main__':
     batch_size = 1
 
     # # 给训练集和测试集分别创建一个数据集加载器
-    test_data = LoadData("Resource/test.txt", True)
+    test_data = LoadData("Resource/test2.txt", True)
     test_dataloader = DataLoader(dataset=test_data, num_workers=4, pin_memory=True, batch_size=batch_size)
 
     # 如果显卡可用，则用显卡进行训练
@@ -44,7 +44,7 @@ if __name__=='__main__':
 
 
     model = models.resnet18()
-    model.load_state_dict(torch.load(r"output/resnet18_stepLR/resnet18_no_pretrain_last.pth"))
+    model.load_state_dict(torch.load(r"D:\work\python\pycharm\O3-learn\Pytorch\year_o3learn\output\resnet18-big1\resnet18_no_pretrain_best.pth"))
     model.to(device)
 
     # 定义损失函数，计算相差多少，交叉熵，
@@ -61,7 +61,7 @@ if __name__=='__main__':
 
     df_pred = pd.DataFrame(data=pred_list, columns=['pred','label'])
     print(df_pred)
-    df_pred.to_csv('pred_result33.csv', encoding='gbk', index=False)
+    df_pred.to_csv('pred_result_big1.csv', encoding='gbk', index=False)
 
 
 

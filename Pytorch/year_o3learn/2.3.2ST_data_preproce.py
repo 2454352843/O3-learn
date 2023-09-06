@@ -5,13 +5,14 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-from Pytorch.twice.Resource import config
-from Pytorch.twice.Utils.ST_utils import *
+from Pytorch.year_o3learn.Utils.ST_utils import *
 
 '''
-计算最大值，最小值，归一化，标准差，均值
+根据构建的数据集，计算时空数据的最大值最小值
+计算 数据集内的 最大值，最小值，归一化，标准差，均值
+改: 针对华北平原地区，修改行列号输入
 '''
-path = r'Resource/math_ST.txt'
+path = r'Resource/ST_math.txt'
 rootdata = r"E:\data\5-mouth-dataset"
 
 tif_list = ['Tropomi', 'SILAM']
@@ -103,22 +104,6 @@ def writeLine(*arg):
         f.write(str(line))
 
 
-def main():
-    for i in LandCover:
-        max, min, mean, std = math_count(rootdata + os.path.sep + 'LandCover', i)
-        print(i, max, min, mean, std)
-        writeLine(i, max, min, mean, std)
-
-    for i in tif_list:
-        max, min, mean, std = math_count(rootdata + os.path.sep + i)
-        print(i, max, min, mean, std)
-        writeLine(i, max, min, mean, std)
-
-    for i in GEOS:
-        max, min, mean, std = math_count(rootdata + os.path.sep + 'GEOS', i)
-        print(i, max, min, mean, std)
-        writeLine(i, max, min, mean, std)
-
 
 # 读取数据集，计算时空数据的mean，std
 def st_main():
@@ -149,9 +134,9 @@ def st_main():
         lon = data_list[i][1]
         time = data_list[i][3]
         ratio = config.ratio
-
-        lat_value = int((53.5675 - float(lat)) / ratio)
-        lon_value = int((float(lon) - 73.4925) / ratio)
+        # 北纬(lat)32°～40°，东经(long)114°～121°
+        lat_value = int((40 - float(lat)) / ratio)
+        lon_value = int((float(lon) - 114) / ratio)
         spatial_data = spatial_embedding(lat_value, lon_value)
         date_data = date_embedding(date)
         time_data = time_embedding(time)
@@ -180,5 +165,5 @@ def st_main():
 
 
 if __name__ == '__main__':
-    # main()
+
     st_main()

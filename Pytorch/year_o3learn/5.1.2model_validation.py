@@ -4,15 +4,15 @@ import pandas as pd  # pip install pandas
 import os
 import numpy as np
 import statsmodels.api as sm
-from Pytorch.twice.Resource import config
-from Pytorch.twice.Utils.sandian import draw_scatter
+from Pytorch.year_o3learn.Resource import config
+from Pytorch.year_o3learn.Utils.sandian import draw_scatter
 
 predict_loc = config.predict_loc  # 3.ModelEvaluate.py生成的文件
 
 predict_data = pd.read_csv(predict_loc, encoding="GBK")  # ,index_col=0)
 
-predict_label = [i * 300 for i in predict_data.to_numpy()[:, 1]]
-predict_pred = [i * 300 for i in predict_data.to_numpy()[:, 0]]
+predict_label = [i * 400 for i in predict_data.to_numpy()[:, 1]]
+predict_pred = [i * 400 for i in predict_data.to_numpy()[:, 0]]
 
 
 

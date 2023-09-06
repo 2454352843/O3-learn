@@ -9,8 +9,8 @@ from torch import nn
 from torch.utils.data import DataLoader
 from ST_Dataset import LoadData,WriteData
 
-from Pytorch.twice import models
-from Pytorch.twice.Resource import config
+from Pytorch.year_o3learn import models
+from Pytorch.year_o3learn.Resource import config
 
 '''
 在3.2的步骤上添加时空数据到数据集中
@@ -47,7 +47,7 @@ def train(dataloader, model, loss_fn, optimizer,device,scheduler1):
         optimizer.step()
 
         # 每训练10次，输出一次当前信息
-        if batch % 100 == 0:
+        if batch % 10000 == 0:
             loss, current = loss.item(), batch * len(X)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
@@ -91,8 +91,8 @@ if __name__=='__main__':
     # batch_size = 128
 
     # # 给训练集和测试集分别创建一个数据集加载器
-    train_data = LoadData("Resource/train.txt", True)
-    valid_data = LoadData("Resource/test.txt", False)
+    train_data = LoadData("Resource/train4.txt", True)
+    valid_data = LoadData("Resource/test4.txt", False)
 
     #num_workers 线程数 pin_memory 数据存到内存中  shuffle 是否打乱顺序
     # train_dataloader = DataLoader(dataset=train_data, num_workers=4, pin_memory=True, batch_size=batch_size, shuffle=True)

@@ -11,8 +11,8 @@ import numpy as np
 from PIL import ImageFile
 
 
-from Pytorch.twice.Utils.ST_utils import *
-from Pytorch.twice.utils import get_math, normalization
+from Pytorch.year_o3learn.Utils.ST_utils import *
+from Pytorch.year_o3learn.utils import get_math, normalization
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 from torch.utils.data import Dataset
@@ -70,14 +70,15 @@ class LoadData(Dataset):
         # 1 数据获取,清除异常值
         str1 = item.img_arr
         list = []
-        for i in range(12):
+        for i in range(11):
             data = [float(i) for i in str1[i][1:-1].split(',')]
             list.append(data)
 
         # 2 时空数据获取
-            # 6159, 3541
-        lat_value = int((53.5675 - float(item.lat)) / ratio)
-        lon_value = int((float(item.lon) - 73.4925) / ratio)
+        # 华北平原地区
+        # 北纬(lat)32°～40°，东经(long)114°～121°  big:lon 107-124 lat 28-45
+        lat_value = int((45 - float(item.lat)) / ratio)
+        lon_value = int((float(item.lon) - 107) / ratio)
         spatial_data = spatial_embedding(lat_value,lon_value)
         date_data = date_embedding(item.data)
         time_data = time_embedding(item.time)
@@ -85,7 +86,7 @@ class LoadData(Dataset):
 
         # 归一化
         list1 = []
-        for i in range(12):
+        for i in range(11):
             # print(i)
             data_normal = normalization(np.array(list[i]).reshape(config.img_size[0], config.img_size[1]), max1[i],
                                         min1[i])
@@ -101,7 +102,7 @@ class LoadData(Dataset):
         # 标准化
         data = self.train_tf(data)
 
-        label = int(item.key)
+        label = float(item.key)
         label = float(label / 400.0)
         return data, label
 

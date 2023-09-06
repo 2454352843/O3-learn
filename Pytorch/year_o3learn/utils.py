@@ -3,7 +3,7 @@ import multiprocessing
 import multitasking
 import numpy as np
 from osgeo import gdal
-from Pytorch.twice.Resource import config
+from Pytorch.year_o3learn.Resource import config
 
 img_list = config.math_arrName_ST
 
@@ -231,8 +231,8 @@ class Gdaltiff():
         lat = float(point['lat'])
         lon = float(point['lon'])
 
-        lat_value = int((self.maxLatmain - (lat)) / ratio)
-        lon_value = int((lon - self.minLonmain) / ratio)
+        lat_value = int((self.maxLatmain - (lat)) / ratio + 0.01)
+        lon_value = int((lon - self.minLonmain) / ratio + 0.01)
 
         # y_min = lat_value - int(y / 2)
         # y_max = y_min + y

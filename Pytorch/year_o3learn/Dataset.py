@@ -12,7 +12,7 @@ import numpy as np
 import torchvision.transforms as transforms
 from tqdm import tqdm
 from Pytorch.twice import *
-from Pytorch.twice.utils import *
+from Pytorch.year_o3learn.utils import *
 # 读取文件格式损坏自动跳过
 from PIL import ImageFile
 

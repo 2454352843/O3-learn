@@ -11,17 +11,19 @@ from matplotlib import ticker
 import numpy as np
 from mpl_toolkits import axes_grid1
 
+
 def add_colorbar(im, aspect=20, pad_fraction=0.5, **kwargs):
     """Add a vertical color bar to an image plot."""
     divider = axes_grid1.make_axes_locatable(im.axes)
-    width = axes_grid1.axes_size.AxesY(im.axes, aspect=1./aspect)
+    width = axes_grid1.axes_size.AxesY(im.axes, aspect=1. / aspect)
     pad = axes_grid1.axes_size.Fraction(pad_fraction, width)
     current_ax = plt.gca()
     cax = divider.append_axes("right", size=width, pad=pad)
     plt.sca(current_ax)
     return im.axes.figure.colorbar(im, cax=cax, **kwargs)
 
-def draw_scatter(df, result,list):
+
+def draw_scatter(df, result, list):
     df = df.drop(df[(df.Observed <= 1)].index)
     df = df.drop(df[(df.Estimated <= 1)].index)
     # df = df.drop(df[(df.Observed >= 300)].index)
@@ -33,7 +35,7 @@ def draw_scatter(df, result,list):
     fig = plt.figure()
     ax = fig.gca()
 
-    norm = mpl.colors.Normalize(vmin=0, vmax=300)  # 规定colorbar尺寸
+    norm = mpl.colors.Normalize(vmin=0, vmax=120)  # 规定colorbar尺寸
     # cmp = mpl.colors.ListedColormap(["green", "orange",
     #                                  "gold", "blue", "k",
     #                                  "#550011", "purple",
@@ -48,28 +50,29 @@ def draw_scatter(df, result,list):
     x = np.linspace(0, 400)
     plt.plot(x, result.params[0] + result.params[1] * x, c='black', lw=2)
 
-    plt.title('ResNet-18', fontsize =15)
-
+    # plt.title('ResNet-18', fontsize=15)
 
     # 所有文本使用统一的样式
 
     styles = {"size": 15, "color": "black", 'linespacing': 1.3, 'weight': 'light'}
     # ax.legend(['R2: 0.694'])  ## 添加图例。数组里面的第一个图表示画的第一条曲线的图例
     ax.text(15, 250,
-            f'N = 129457\ny = {round(result.params[1], 2)}x+{round(result.params[0], 2)}\nMAE = {round(list[1],3)}\nR$^{2}$ ={round(list[0],3)} \nRMSE = {round(list[3],3)}',
+            f'N = 129457\ny = {round(result.params[1], 2)}x+{round(result.params[0], 2)}\nMAE = {round(list[1], 3)}\nR$^{2}$ ={round(list[0], 3)} \nRMSE = {round(list[3], 3)}',
             ha='left', **styles)
-    ax.text(310, 10, 'Hourly', ha='left', **styles)
+    ax.text(310, 20, '(c)', ha='left', **styles)
 
     # colorbar
     cb1 = add_colorbar(im)
     # cb1 = plt.colorbar(im, fraction=0.03, pad=0.05)
+
     cb1.ax.tick_params(labelsize=12)
     tick_locator = ticker.MaxNLocator(nbins=5)  # colorbar上的刻度值个数
     cb1.locator = tick_locator
-    cb1.set_ticks([50 * (i + 1) for i in range(6)])
+    cb1.set_ticks([20 * (i + 1) for i in range(6)])
     cb1.set_label('Count', size=13)
-    # cb1.set_label(label='Points', rotation='horizontal', loc='top')  # loc参数
 
+
+    # cb1.set_label(label='Points', rotation='horizontal', loc='top')  # loc参数
 
     # 设置label
     leg = ax.legend(loc='best', fontsize=24)
@@ -94,5 +97,5 @@ def draw_scatter(df, result,list):
     # y=x
     # plt.plot(x,y,ls='--',lw=2,c='black')
 
-    plt.savefig('./scatterDiagram32.png')
+    plt.savefig('./scatterDiagram-big1.png')
     plt.show()
