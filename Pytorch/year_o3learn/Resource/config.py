@@ -25,6 +25,7 @@ arr_list = ['PS', 'T2M',  'U2M', 'V2M', 'ZPBL', 'SILAM', 'TropOMI', 'DEM', 'NDVI
 batch_size = 128
 # save_root = r'output/resnet18_StepLR/'
 save_root = r'output/resnet18-big1/'
+math_path = r'Resource/math.txt'
 math_path_st = r'Resource/ST_math.txt'
 math_arrName_ST = ['PS', 'T2M',  'U2M', 'V2M', 'ZPBL', 'SILAM', 'Tropomi', 'DEM', 'NDVI', 'POP', 'pri_sec','spatial','date','time']
 math_arrName =['PS', 'T2M',  'U2M', 'V2M', 'ZPBL', 'SILAM', 'TropOMI', 'DEM', 'NDVI', 'POP', 'pri_sec']
@@ -33,7 +34,7 @@ math_arrName =['PS', 'T2M',  'U2M', 'V2M', 'ZPBL', 'SILAM', 'TropOMI', 'DEM', 'N
 
 # model
 stride = 1
-ch_in = 15
+ch_in = 14
 class_num = 1
 epochs = 300
 
