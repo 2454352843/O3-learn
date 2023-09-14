@@ -7,10 +7,12 @@ from torch import nn
 from torch.utils.data import DataLoader
 from Dataset import LoadData,WriteData
 
-from Pytorch.twice import models
-from Pytorch.twice.Resource import config
+from Pytorch.year_o3learn import models
+from Pytorch.year_o3learn.Resource import config
 
 torch.cuda.max_split_size_mb = 128
+
+# 没有时空镶嵌的resnet模型
 
 def train(dataloader, model, loss_fn, optimizer,device):
     size = len(dataloader.dataset)

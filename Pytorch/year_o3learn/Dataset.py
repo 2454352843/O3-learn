@@ -1,32 +1,29 @@
 '''
-2.2.2 生成数据加载器
+2.2.2 生成数据加载器（不包含时空数据）
 '''
-import time
 
-import multitasking
-import config.log as log
-import sys
-from osgeo import gdal
+import time
 import torch
-import numpy as np
 import torchvision.transforms as transforms
-from tqdm import tqdm
-from Pytorch.twice import *
-from Pytorch.year_o3learn.utils import *
+import numpy as np
 # 读取文件格式损坏自动跳过
 from PIL import ImageFile
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+from Pytorch.year_o3learn.Utils.ST_utils import *
+from Pytorch.year_o3learn.utils import get_math, normalization
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 from torch.utils.data import Dataset
 
-logger = log.getLogger()
 # 数据归一化与标准化
 img_list = config.arr_list
 # 分辨率
 ratio = config.ratio
+path = config.math_path
 
-mean1, std1, max1, min1 = get_math()
+mean1, std1, max1, min1 = get_math(path)
 
 # transform_BZ= transforms.Normalize(
 #     mean=mean,# 取决于数据集
@@ -63,38 +60,35 @@ class LoadData(Dataset):
             imgs_info = list(map(lambda x: x.strip().split('\t'), imgs_info))
         return imgs_info  # 返回图片信息
 
-
-
     def __getitem__(self, index):  # 返回真正想返回的东西
         # logger.info('getitem index:{n}'.format(n=index))
         value = self.imgs_info[index]
         item = Point(value)
         # print(item)
 
-        #数据获取,清除异常值
+        # 数据获取,清除异常值
         str1 = item.img_arr
         list = []
-        for i in range(12):
+        for i in range(11):
             data = [float(i) for i in str1[i][1:-1].split(',')]
             list.append(data)
 
         # 归一化
         list1 = []
-        for i in range(12):
+        for i in range(11):
             # print(i)
-            data_normal = normalization(np.array(list[i]).reshape(config.img_size[0],config.img_size[1]), max1[i], min1[i])
+            data_normal = normalization(np.array(list[i]).reshape(config.img_size[0], config.img_size[1]), max1[i],
+                                        min1[i])
             list1.append(data_normal)
 
         data = np.array(list1)
-        data[data==np.nan] = 0
+        data[data == np.nan] = 0
         data = torch.from_numpy(data).float()
         data = torch.where(torch.isnan(data), torch.full_like(data, 0), data)
         data = self.train_tf(data)
 
-
-
         label = int(item.key)
-        label = float(label / 300.0)
+        label = float(label / 400.0)
         return data, label
 
     def __len__(self):
@@ -120,33 +114,17 @@ class Point(object):
 
         self.img_arr = value[5:]
 
-        # self.PS_path = value[5]
-        # self.T2M_path = value[6]
-        # self.GEOS_Oznone_path = value[7]
-        # self.U2M_path = value[8]
-        # self.V2M_path = value[9]
-        # self.ZPBL_path = value[10]
-        # self.SILAM_path = value[11]
-        # self.Tropomi_path = value[12]
-        # self.DEM_path = value[13]
-        # self.NDVI_path = value[14]
-        # # self.NDVI_resample_path = value[15]
-        # self.POP_path = value[15]
-        # self.pri_sec_path = value[16]
-        # self.tertiary_path = value[17]
-
     def __str__(self):
         return str(self.value)
 
 
 if __name__ == "__main__":
 
-    train_dataset = LoadData("Resource/train.txt", True)
+    train_dataset = LoadData("Resource/train4.txt", True)
     print("数据个数：", len(train_dataset))
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                batch_size=10,
                                                shuffle=True)
-
 
     time_start = time.time()
     for batch, (image, label) in enumerate(train_loader):
