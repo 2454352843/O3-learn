@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from Pytorch.twice.Resource import config
+from Pytorch.year_o3learn.Resource import config
 
 class_num = config.class_num
 ch_in = config.ch_in
