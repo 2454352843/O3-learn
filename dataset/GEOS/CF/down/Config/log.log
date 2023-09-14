@@ -1,0 +1,6 @@
+2022-06-15 11:21:43,276 - root - DEBUG - log.py - line: 27 - debug 信息
+2022-06-15 11:21:43,277 - root - INFO - log.py - line: 28 - info 信息
+2022-06-15 11:21:43,277 - root - WARNING - log.py - line: 29 - warn 信息
+2022-06-15 11:21:43,277 - root - ERROR - log.py - line: 30 - error 信息
+2022-06-15 11:21:43,277 - root - CRITICAL - log.py - line: 31 - critical 信息
+2022-06-15 11:21:43,277 - root - DEBUG - log.py - line: 32 - 这些东西 是自定义信息
